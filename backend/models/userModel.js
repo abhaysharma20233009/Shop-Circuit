@@ -1,12 +1,12 @@
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-
+const validator=require('validator');
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: [true, 'User should have a username'],
-    trim: true,
+   
     unique: true,
   },
   email: {
@@ -42,7 +42,9 @@ const userSchema = new mongoose.Schema({
     default: 'user',
     required: true,
   },
-
+  contactNumber: {
+    type: String,
+  },
   // Student-specific fields
   hostelName: {
     type: String,
