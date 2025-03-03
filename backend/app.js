@@ -3,7 +3,7 @@ const cookieParser=require('cookie-parser')
 const dotenv = require('dotenv');
 const rentRoutes = require('./routes/requestedRentRoute');
 const sellRoutes = require('./routes/requestedSellRoute');
-
+const productRouter = require('./routes/productRoute');
 const userRouter = require('./routes/userRoutes');
 
 const globalErrorHandler = require('./controllers/errorController');
