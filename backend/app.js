@@ -1,6 +1,9 @@
 const express = require('express');
 const cookieParser=require('cookie-parser')
 const dotenv = require('dotenv');
+//const userRouter = require('./routes/userRoutes');
+const rentRoutes = require('./routes/requestedRentRoute');
+const sellRoutes = require('./routes/requestedSellRoute');
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
 
@@ -16,6 +19,13 @@ app.use(cookieParser());
 
 // Body parser middleware to read data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+
+// 🌟 Routes
+//app.use('/api/v1/users', userRouter);
+
+app.use('/api/v1/rent', rentRoutes);
+app.use('/api/v1/sell', sellRoutes);
+
 
 // 404 handler for undefined routes
 app.use('*', (req, res, next) => {
