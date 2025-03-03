@@ -14,14 +14,14 @@ router.use(authController.protect);
 
 router.get('/logout',authController.logout);
 router.get('/isLoggedIn', userController.isLoggedIn);
-// router.post('/upload-profile-photo', userController.uploadProfilePhoto);
+ router.post('/upload-profile-photo', userController.uploadProfilePhoto);
 
 router.patch('/updateMyPassword', authController.updatePassword);
 router.get('/me', userController.getMe, userController.getUser);
 router.patch('/updateMe', userController.updateMe);
 router.delete('/deleteMe', userController.deleteMe);
 
-// router.use(authController.restrictTo('admin'));
+router.use(authController.restrictTo('admin'));
 
 router.route('/').get(userController.getAllUsers);
 
