@@ -1,13 +1,13 @@
-import { useState } from 'react'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import './App.css'
+import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import "./App.css";
 import UserProfile from "./pages/profile/profile.jsx";
 import EditUserProfile from './pages/profile/editProfile.jsx';
 import SignupPage from './pages/authentication/signup.jsx';
 import LoginPage from './pages/authentication/login.jsx';
 import HomePage from './pages/profile/websiteHome.jsx';
+
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
@@ -24,6 +24,7 @@ function App() {
   
     </>
   )
+
 }
 
-export default App
+export default App;

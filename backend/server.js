@@ -1,4 +1,3 @@
-
 let server = require('http').createServer();
 const app = require('./app');
 const mongoose = require('mongoose');
@@ -20,7 +19,6 @@ const DB = process.env.DATABASE.replace(
 mongoose.connect(DB, { useNewUrlParser: true }).then(() => {
     console.log('DB connection successful!');
 });
-
 
 server.on('request', app);
 const Port = process.env.PORT || 3000;
