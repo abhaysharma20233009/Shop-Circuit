@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 export default function EditUserProfile() {
     const location = useLocation();
     const navigate=useNavigate();
