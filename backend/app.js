@@ -1,12 +1,18 @@
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const dotenv = require("dotenv");
-const globalErrorHandler = require("./controllers/errorController");
-const productRouter = require("./routes/productRoute");
-const AppError = require("./utils/appError");
+const express = require('express');
+const cookieParser=require('cookie-parser')
+const dotenv = require('dotenv');
+const userRouter = require('./routes/userRoutes');
+const globalErrorHandler = require('./controllers/errorController');
+const AppError = require('./utils/appError');
 
 // Initialize Express app
 const app = express();
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'http://localhost:5173', // Adjust based on frontend URL
+  credentials: true, // Allows cookies to be sent with requests
+}));
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +30,8 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/v1", productRouter);
+
+app.use('/api/v1/users', userRouter);
 
 // 404 handler for undefined routes
 app.use("*", (req, res, next) => {
