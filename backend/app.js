@@ -10,6 +10,13 @@ const AppError = require('./utils/appError');
 const app = express();
 const cors = require('cors');
 
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+  cloud_name: 'dw4p8fd7r',
+  api_key: '722164512214482',
+  api_secret: 'AS1AYdTcMbrj-sZpkNBfxl-03Rs',
+});
+
 app.use(cors({
   origin: 'http://localhost:5173', // Adjust based on frontend URL
   credentials: true, // Allows cookies to be sent with requests
