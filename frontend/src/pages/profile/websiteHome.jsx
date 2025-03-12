@@ -1,22 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useProductData } from "../../store/productDataStore";
 export default function HomePage() {
-  const [products, setProducts] = useState([]);
+  const {products,loading}=useProductData();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Simulate API failure by setting placeholder products
-    setTimeout(() => {
-      setProducts([
-        { id: 1, name: "Smartphone", category: "Electronics", price: 299, image: "https://via.placeholder.com/150" },
-        { id: 2, name: "Laptop", category: "Electronics", price: 799, image: "https://via.placeholder.com/150" },
-        { id: 3, name: "Wristwatch", category: "Fashion", price: 99, image: "https://via.placeholder.com/150" },
-        { id: 4, name: "Sneakers", category: "Fashion", price: 120, image: "https://via.placeholder.com/150" },
-      ]);
-    }, 1000);
-  }, []);
-
   return (
     <div className="bg-gray-100 min-h-screen">
       {/* Hero Section */}
@@ -49,11 +36,11 @@ export default function HomePage() {
 const ProductCard = ({ product }) => (
   <div className="bg-white p-4 rounded-lg shadow-lg">
     <img
-      src={product.image}
+      src={product.productImage}
       alt={product.name}
       className="w-full h-40 object-cover rounded-md"
     />
-    <h3 className="text-lg font-semibold mt-2">{product.name}</h3>
+    <h3 className="text-lg font-semibold mt-2">{product.productName}</h3>
     <p className="text-gray-500">{product.category}</p>
     <p className="text-blue-600 font-bold mt-1">${product.price}</p>
     <button className="mt-2 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
