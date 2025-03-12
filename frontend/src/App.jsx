@@ -5,35 +5,28 @@ import EditUserProfile from "./pages/profile/editProfile.jsx";
 import SignupPage from "./pages/authentication/signup.jsx";
 import LoginPage from "./pages/authentication/login.jsx";
 import HomePage from "./pages/profile/websiteHome.jsx";
-
 import Navbar from "./components/Navbar.jsx";
-import FilterBar from "./components/Filterbar.jsx";
 import ProductList from "./pages/Home/ProductList.jsx";
 import Footer from "./components/Footer.jsx";
-
-// Layout for pages that require Navbar & Footer
-const MainLayout = ({ children }) => {
-  return (
-    <>
-      {children}
-      <Footer />
-    </>
-  );
-};
-
+import { ProductsDataProvider } from "./store/productDataStore.jsx";
+import { UserDataProvider } from "./store/userDataStore.jsx";
+import AllSells from "./pages/sellAndRentRequests/sells.jsx"
+import AllRequests from "./pages/sellAndRentRequests/rentRequests.jsx";
 // Layout for Dashboard Pages
 const DashboardLayout = ({ children }) => {
   return (
-    <>
-      <Navbar />
-      <FilterBar />
+    <> {/* Wrap entire DashboardLayout with Provider */}
+   
+    <Navbar />
+    
+     
       {children}
       <Footer />
     </>
   );
 };
 
-// Layout for Profile Pages (Only Navbar, No Sidebar)
+// Other Layouts remain the same
 const ProfileLayout = ({ children }) => {
   return (
     <>
@@ -44,31 +37,67 @@ const ProfileLayout = ({ children }) => {
   );
 };
 
-// Exclude Navbar & Footer from login and signup
 const AuthLayout = ({ children }) => {
   return <>{children}</>;
+};
+
+const MainLayout = ({ children }) => {
+  return (
+    <>
+      {children}
+      <Footer />
+    </>
+  );
 };
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Dashboard route with Navbar, FilterBar, and Footer */}
+        {/* Dashboard Route */}
+       
         <Route
           path="/dashboard"
           element={
-            <DashboardLayout>
+            
+             <DashboardLayout>
               <ProductList />
             </DashboardLayout>
+          
+            
+          }
+        />
+         <Route
+          path="/sells"
+          element={
+            
+             <DashboardLayout>
+              <AllSells />
+            </DashboardLayout>
+           
+            
+          }
+        />
+         <Route
+          path="/rents"
+          element={
+            
+             <DashboardLayout>
+              <AllRequests />
+            </DashboardLayout>
+           
+            
           }
         />
 
-        {/* Profile routes with only Navbar */}
+        {/* Profile Routes */}
         <Route
           path="/me"
           element={
             <ProfileLayout>
+              <UserDataProvider>
               <UserProfile />
+              </UserDataProvider>
             </ProfileLayout>
           }
         />
@@ -81,7 +110,7 @@ function App() {
           }
         />
 
-        {/* Auth routes without Navbar & Footer */}
+        {/* Authentication Routes */}
         <Route
           path="/signup"
           element={
@@ -99,12 +128,14 @@ function App() {
           }
         />
 
-        {/* Default pages with Navbar & Footer */}
+        {/* Main Route */}
         <Route
           path="/"
           element={
             <MainLayout>
-              <HomePage />
+              <ProductsDataProvider>
+                <HomePage />
+              </ProductsDataProvider>
             </MainLayout>
           }
         />
