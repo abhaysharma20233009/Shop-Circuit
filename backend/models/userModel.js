@@ -38,12 +38,13 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'student', 'shopkeeper'],
+    enum: ['admin', 'student', 'shopkeeper'],
     default: 'user',
     required: true,
   },
   contactNumber: {
     type: String,
+   
   },
   // Student-specific fields
   hostelName: {
