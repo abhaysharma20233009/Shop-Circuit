@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { FaBars, FaTimes, FaSearch, FaMapMarkerAlt, FaSun, FaMoon } from "react-icons/fa";
 import defaulPic from '../assets/react.svg';
 import { useNavigate } from "react-router-dom";
+
 export default function Navbar() {
+  
   const [darkMode, setDarkMode] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const navigate=useNavigate();
@@ -10,7 +12,7 @@ export default function Navbar() {
     setDarkMode(!darkMode);
     document.body.classList.toggle("dark-mode", !darkMode);
   };
-
+ 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   useEffect(() => {
@@ -31,13 +33,6 @@ export default function Navbar() {
         <div className="text-xl font-bold">Shop Circuit</div>
       </div>
       
-      <div className="flex items-center gap-4 pb-2 flex-grow justify-center">
-        <div className="relative  ">
-          <input type="text" placeholder="Search..." className="p-2 rounded text-white border" />
-          <button className="absolute right-2 top-1/2 transform -translate-y-1/2 "><FaSearch /></button>
-        </div>
-      </div>
-      
       {/* <div className="flex items-center gap-4">
         <button className="text-2xl" onClick={toggleDarkMode}>{darkMode ? <FaSun /> : <FaMoon />}</button>
         <div className="flex items-center gap-2">
@@ -55,7 +50,10 @@ export default function Navbar() {
           <button onClick={toggleSidebar} className="text-2xl"><FaTimes /></button>
         </div>
         <ul className="mt-5 space-y-4">
-          <li className="hover:text-gray-300 cursor-pointer">Home</li>
+          <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/dashboard')}>Home</li>
+          <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/me')}>Profile</li>
+          <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/sells')}>sell</li>
+          <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/rents')}>rent requests</li>
           <li className="hover:text-gray-300 cursor-pointer">About</li>
           <li className="hover:text-gray-300 cursor-pointer">Services</li>
           <li className="hover:text-gray-300 cursor-pointer">Contact</li>
