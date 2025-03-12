@@ -1,4 +1,4 @@
-const { RequestedRent} = require('../models/requestedRent.model.js');
+const { RequestedRent} = require('../models/requestedRentModel.js');
 const catchAsync = require("./../utils/catchAsync");
 const APIFeatures = require("./../utils/apiFeatures");
 const AppError = require("./../utils/appError");
