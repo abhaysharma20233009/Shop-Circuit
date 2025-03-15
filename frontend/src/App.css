@@ -1,0 +1,77 @@
+.main {
+  background: rgba(74,89,108,255);
+}
+
+.chat-list-main {
+  background: rgba(54,63,72,255);
+  border-color: rgba(54,63,72,255);
+}
+
+.chat-list-header {
+  background: #2b333b;
+}
+
+.chat-list-search-bar {
+  background: #303942;
+  border-color: rgba(48,57,66,255);
+}
+
+.chat-list-search-bar:hover {
+  background: #2b333b;
+  border-color: rgba(48,57,66,255);
+}
+
+.chat-list-single-chat {
+  cursor: pointer;
+}
+
+.chat-list-single-chat:hover {
+  background: #2b333b;
+}
+
+.chat-box-main {
+  background: rgba(242,248,248,255);
+  border-color: rgba(242,248,248,255);
+}
+
+.chat-box-sender-message {
+  background: rgba(84,211,139,255);
+  border-color: rgba(84,211,139,255);
+}
+
+.chat-box-receiver-message {
+  background: rgba(254,255,255,255);
+  border-color: rgba(254,255,255,255);
+}
+
+.chat-box-message-menu-sender {
+  background: rgba(84, 211, 139, 0.5);
+}
+
+.chat-box-message-menu-receiver {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.chat-box-input {
+  background: rgba(255,255,255,255);
+}
+
+
+/* css for scroll bar */
+
+::-webkit-scrollbar {
+  width: 6px; /* Thin scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* Subtle dark scrollbar thumb */
+  border-radius: 10px; /* Rounded edges */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* No track color */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5); /* Darker when hovered */
+}
