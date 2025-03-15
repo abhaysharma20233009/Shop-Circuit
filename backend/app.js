@@ -1,11 +1,4 @@
 const express = require("express");
-
-const cookieParser = require("cookie-parser");
-const dotenv = require("dotenv");
-const rentRoutes = require("./routes/requestedRentRoute");
-const productRouter = require("./routes/productRoute");
-const userRouter = require("./routes/userRoutes");
-
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 
