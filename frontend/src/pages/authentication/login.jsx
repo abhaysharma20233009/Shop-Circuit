@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
-  const navigate = useNavigate();
-  const [success, setSuccess] = useState("");
+  const navigate=useNavigate();
+    const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -35,11 +35,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         setSuccess("Signup successful! Redirecting...");
-        const userId = data.data.user._id;
-
-        // Store userId in localStorage
-        localStorage.setItem("userId", userId);
-        navigate("/dashboard");
+        navigate('/dashboard');
       } else {
         setError(data.message || "Login failed. Please try again.");
       }
@@ -54,7 +50,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md p-6 bg-white shadow-lg rounded-2xl">
         <h2 className="text-2xl font-bold text-center text-gray-800">Login</h2>
 
-        {error && <p className="text-red-500 text-center">{error}</p>}
+          {error && <p className="text-red-500 text-center">{error}</p>}
         {success && <p className="text-green-500 text-center">{success}</p>}
         <form onSubmit={handleSubmit} className="mt-4">
           <input
