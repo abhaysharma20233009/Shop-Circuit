@@ -1,18 +1,17 @@
 const mongoose = require("mongoose");
-const slugify = require('slugify');
+const slugify = require("slugify");
 
 const productSchema = new mongoose.Schema({
   productName: {
     type: String,
     trim: true,
-    required: [true, "Product should have name"],
+    required: [true, "Product should have a name"],
     maxlength: [20, "A product name must have less or equal to 20 characters"],
-    minlength: [1, "A product name must have more or equal to 1 characters"],
-    unique: true,
+    minlength: [1, "A product name must have more or equal to 1 character"],
   },
   price: {
     type: Number,
-    required: [true, "Product should have price"],
+    required: [true, "Product should have a price"],
   },
   noOfItems: {
     type: Number,
@@ -24,7 +23,7 @@ const productSchema = new mongoose.Schema({
   },
   productImage: {
     type: String,
-    required: [true, "A product must have a image"],
+    required: [true, "A product must have an image"],
     default: "default.jpg",
   },
   imageCover: {
@@ -43,47 +42,22 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: [
-      "stationary",
-      "vehicle",
-      "fashion",
-      "grocery",
-      "electronics",
-      "food",
-    ],
+    enum: ["stationary", "vehicle", "fashion", "grocery", "electronics", "food"],
     required: [true, "A product must have a category"],
     lowercase: true,
   },
-  slug: {
+  status: {
     type: String,
-    unique: true
+    enum: ['pending', 'sold'],
+    default: 'pending',
+  },
+  sellerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
 });
 
-// Pre-save hook to generate slug
-productSchema.pre("save", function(next) {
-  if (this.isModified("productName") || this.isNew) {
-    this.slug = slugify(this.productName, { lower: true, strict: true });
-  }
-  next();
-});
-
-productSchema.pre("save", function (next) {
-  if (this.sellerType === "shopkeeper") {
-    this.set("negotiable", undefined, { strict: false }); // Remove negotiable
-    if (this.noOfItems === undefined) {
-      this.noOfItems = 1; // Ensure noOfItems exists for shopkeepers
-    }
-  } else if (this.sellerType === "student") {
-    if (this.negotiable === undefined) {
-      this.negotiable = false; // Ensure negotiable exists for students
-    }
-    if (this.noOfItems === undefined) {
-      this.noOfItems = 1; // Ensure noOfItems exists for students
-    }
-  }
-  next();
-});
 
 const Product = mongoose.model("Product", productSchema);
 

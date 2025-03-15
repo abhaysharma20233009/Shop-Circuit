@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const requestedRentSchema = new mongoose.Schema({
-  student: {
+  studentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
@@ -10,7 +10,7 @@ const requestedRentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  nuberOfItems: {
+  numberOfItems: {
     type: Number,
     required: true,
   },
@@ -25,7 +25,7 @@ const requestedRentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'approved',],
+    enum: ['pending', 'fulfilled',],
     default: 'pending',
   },
   createdAt: {

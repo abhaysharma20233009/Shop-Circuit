@@ -2,127 +2,190 @@ const Product = require("./../models/productModel");
 const catchAsync = require("./../utils/catchAsync");
 const APIFeatures = require("./../utils/apiFeatures");
 const AppError = require("./../utils/appError");
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const fs=require('fs');
 
-exports.createProduct = catchAsync(async (req, res, next) => {
-  const doc = await Product.create(req.body);
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      data: doc,
-    },
-  });
-});
+exports.createProduct = async (req, res) => {
+  try {
+    console.log("Received Data:", req.body);
+    console.log("User Info:", req.user);
+    console.log("Received File:", req.file);
 
-exports.deleteProduct = catchAsync(async (req, res, next) => {
-  const doc = await Product.findByIdAndDelete(req.params.id).exec();
+    const { productName, price, noOfItems, description, sellerType, category } = req.body;
 
-  if (!doc) {
-    return next(new AppError("No document found with that ID", 404));
-  }
-
-  res.status(204).json({
-    status: "success",
-    data: null,
-  });
-});
-
-exports.updateProduct = catchAsync(async (req, res, next) => {
-  const doc = await Product.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  }).exec();
-
-  if (!doc) {
-    return next(new AppError("No document found with that ID", 404));
-  }
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      data: doc,
-    },
-  });
-});
-
-exports.getProduct = catchAsync(async (req, res, next) => {
-  let query = Product.findById(req.params.id);
-  if (req.popOptions) query = query.populate(req.popOptions);
-  const doc = await query.exec();
-
-  if (!doc) {
-    return next(new AppError("No document found with that ID", 404));
-  }
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      data: doc,
-    },
-  });
-});
-
-exports.getAllProducts = catchAsync(async (req, res, next) => {
-  let filter = {};
-
-  // List of valid categories (without "all")
-  const validCategories = [
-    "stationary",
-    "vehicle",
-    "fashion",
-    "grocery",
-    "electronics",
-    "food",
-  ];
-
-  // Check if a category filter is provided
-  if (req.query.category) {
-    const category = req.query.category.toLowerCase();
-
-    if (!validCategories.includes(category)) {
-      return next(new AppError("Invalid category provided", 400));
+    // Check if an image was uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: "No image uploaded" });
     }
 
-    // Apply category filter
-    filter.category = category;
-  }
+    // Upload the image to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path);
+    
+    // Delete the local file after uploading to Cloudinary
+    fs.unlinkSync(req.file.path);
 
-  const features = new APIFeatures(Product.find(filter), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const doc = await features.query.exec();
+    // Store Cloudinary URL
+
+    const productImage = result.secure_url;
+    const sellerId = req.user._id;
+
+    // Create and save product
+    const newProduct = await Product.create({
+      productName,
+      price,
+      noOfItems,
+      description,
+      sellerType,
+      category,
+      productImage,
+      sellerId,
+    });
+
+    res.status(201).json({
+      status: "success",
+      message: "Product created successfully!",
+      data: newProduct,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// exports.updateProduct = catchAsync(async (req, res, next) => {
+//   const doc = await Product.findByIdAndUpdate(req.params.id, req.body, {
+//     new: true,
+//     runValidators: true,
+//   }).exec();
+
+//   if (!doc) {
+//     return next(new AppError("No product found with that ID", 404));
+//   }
+
+//   res.status(200).json({
+//     status: "success",
+//     data: {
+//       product: doc,
+//     },
+//   });
+// });
+
+// exports.getProduct = catchAsync(async (req, res, next) => {
+//   const product = await Product.findById(req.params.id).populate(
+//     "sellerId",
+//     "shopName shopAddress hostelName roomNumber sellerType"
+//   );
+
+//   if (!product) {
+//     return next(new AppError("No product found with that ID", 404));
+//   }
+
+//   const seller = product.sellerId;
+//   const sellerDetails = seller.sellerType === "shopkeeper"
+//     ? { shopName: seller.shopName, shopAddress: seller.shopAddress }
+//     : { hostelName: seller.hostelName, roomNumber: seller.roomNumber };
+
+//   res.status(200).json({
+//     status: "success",
+//     data: {
+//       product,
+//       sellerDetails,
+//     },
+//   });
+// });
+exports.getAllProducts = catchAsync(async (req, res, next) => {
+  try {
+    const products = await Product.find({ status: "pending" }).populate("sellerId", "shopName shopAddress contactNumber sellerType").exec();
+    
+    console.log("Fetched products:", products); // Debug log
+
+    const productsWithSellers = products
+      .filter(product => product.sellerType && product.sellerType.toLowerCase() === "shopkeeper") // Prevents crash if sellerId is null
+      .map(product => ({ ...product.toObject() }));
+
+    res.status(200).json({
+      status: "success",
+      results: productsWithSellers.length,
+      data: { products: productsWithSellers },
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ status: "error", message: "Failed to fetch products", error });
+  }
+});
+
+exports.getUserSells = catchAsync(async (req, res, next) => {
+  console.log(req.user);
+  const userId=req.user._id;
+   console.log("userId"+userId);
+  const sells = await Product.find({ sellerId: userId}) 
+  console.log(sells);
+  res.status(200).json({ status: 'success', data:sells });
+});
+
+exports.markSoldProduct = async (req, res) => {
+  try {
+    const {requestId}=req.params;
+    console.log(requestId);
+    const sell = await Product.findById(requestId);
+    console.log()
+    if (!sell) {
+      return res.status(404).json({ message: 'product not found' });
+    }
+
+    sell.status='sold';
+    await sell.save();
+
+    res.status(200).json({ message: 'Product marked sold' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error marking sold the product', error });
+  }
+};
+
+exports.getAllStudentSells = catchAsync(async (req, res, next) => {
+  let filter = {};
+  if (req.query.sellerId) filter.sellerId = req.query.sellerId;
+
+  const validCategories = ["stationary", "vehicle", "fashion", "grocery", "electronics", "food"];
+  if (req.query.category && !validCategories.includes(req.query.category.toLowerCase())) {
+    return next(new AppError("Invalid category provided", 400));
+  }
+  if (req.query.category) filter.category = req.query.category.toLowerCase();
+
+  const features = new APIFeatures(
+    Product.find(filter).populate("sellerId", "username contactNumber hostelName roomNumber sellerType"),
+    req.query
+  ).filter().sort().limitFields().paginate();
+
+  const products = await features.query.exec();
+  const productsWithSellers = products
+  .filter(product => product.sellerType === "student") // Filter only shopkeepers
+  .map(product => {
+    const productData = { ...product.toObject() };
+    return productData;
+  });
 
   res.status(200).json({
     status: "success",
-    requestedAt: req.requestTime,
-    results: doc.length,
+    results: products.length,
     data: {
-      data: doc,
+      products: productsWithSellers,
     },
   });
 });
 
+
+
 exports.getProductsByCategory = catchAsync(async (req, res, next) => {
-  const { categoryName } = req.params; // Get category from URL
+  const { categoryName } = req.params;
+  const validCategories = ["stationary", "vehicle", "fashion", "grocery", "electronics", "food"];
 
-  // Define valid categories (without "all")
-  const validCategories = [
-    "stationary",
-    "vehicle",
-    "fashion",
-    "grocery",
-    "electronics",
-    "food",
-  ];
-
-  // Check if category is valid
   if (!validCategories.includes(categoryName.toLowerCase())) {
     return next(new AppError("Invalid category provided", 400));
   }
 
-  // Fetch products by category
   const products = await Product.find({ category: categoryName.toLowerCase() });
 
   res.status(200).json({

@@ -2,6 +2,12 @@ const express = require("express");
 
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
+const rentRoutes = require("./routes/requestedRentRoute");
+const productRouter = require("./routes/productRoute");
+const userRouter = require("./routes/userRoutes");
+
+const cookieParser = require("cookie-parser");
+const dotenv = require("dotenv");
 
 const rentRoutes = require("./routes/requestedRentRoute");
 const sellRoutes = require("./routes/requestedSellRoute");
@@ -45,7 +51,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/v1", productRouter);
+app.use("/api/v1/products", productRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/rent", rentRoutes);
