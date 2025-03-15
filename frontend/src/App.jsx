@@ -5,6 +5,7 @@ import EditUserProfile from "./pages/profile/editProfile.jsx";
 import SignupPage from "./pages/authentication/signup.jsx";
 import LoginPage from "./pages/authentication/login.jsx";
 import HomePage from "./pages/profile/websiteHome.jsx";
+import ChatPage from "./pages/chat/chatApp.jsx";
 
 import Navbar from "./components/Navbar.jsx";
 import FilterBar from "./components/Filterbar.jsx";
@@ -107,6 +108,10 @@ function App() {
               <HomePage />
             </MainLayout>
           }
+        />
+        <Route
+          path="/chat"
+          element={<ChatPage/>} // Fixed incorrect usage of currentUser
         />
       </Routes>
     </Router>
