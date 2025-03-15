@@ -2,9 +2,9 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
-const cloudinary = require('cloudinary').v2;
-const multer = require('multer');
-const fs=require('fs');
+// const cloudinary = require('cloudinary').v2;
+// const multer = require('multer');
+
 
 
 const filterObj = (obj, ...allowedFields) => {
@@ -33,7 +33,8 @@ exports.isLoggedIn = async (req, res, next) => {
 };
 
 exports.updateMe = catchAsync(async (req, res, next) => {
- console.log("hi"+req.body);
+  // 1) Create error if user POSTs password data
+  console.log("hi"+req.body.email);
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
@@ -45,12 +46,12 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   // 2) Filter out unwanted fields names that are not allowed to be updated
   const filteredBody = {
-    ...filterObj(req.body, 'username', 'email','contactNumber'),
+    ...filterObj(req.body, 'username', 'email'),
     ...(req.user.role === 'shopkeeper' ? filterObj(req.body, 'shopName', 'shopAddress') : {}),
-    ...(req.user.role === 'student' ? filterObj(req.body, 'hostelName', 'roomNumber') : {})
+    ...(req.user.role === 'student' ? filterObj(req.body, 'hostel', 'roomNumber') : {})
   };
   
-  console.log("filteredBody"+filteredBody);
+  console.log(filteredBody);
   // 3) Update the user document
   console.log("userId"+req.user._id);
   const updatedUser = await User.findByIdAndUpdate(req.user._id, filteredBody, {
@@ -83,11 +84,7 @@ const upload = multer({ dest: 'uploads/' });  // Temporary storage
 
 exports.uploadProfilePhoto = catchAsync(async (req, res, next) => {
   // Use Multer middleware to handle file upload
-
   upload.single('profileImage')(req, res, async (err) => {
-
-
-    console.log("hiimages");
     if (err) return next(new AppError('Error uploading file', 400));
 
     if (!req.file) {

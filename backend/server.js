@@ -2,7 +2,7 @@ let server = require('http').createServer();
 const app = require('./app');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-
+const setupSocket = require('./socket');
 
 dotenv.config({ path: './config.env' });
 
@@ -21,7 +21,10 @@ mongoose.connect(DB, { useNewUrlParser: true }).then(() => {
     
 });
 
+// initializeSocket(server); // Initialize Socket.io
 server.on('request', app);
+setupSocket(server);
+
 const Port = process.env.PORT || 3000;
 server.listen(Port, () => {
     console.log(`Server running on port ${Port}`);
