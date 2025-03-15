@@ -1,6 +1,7 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
+  const navigate=useNavigate();
     const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
     email: "",
@@ -34,6 +35,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         setSuccess("Signup successful! Redirecting...");
+        navigate('/dashboard');
       } else {
         setError(data.message || "Login failed. Please try again.");
       }

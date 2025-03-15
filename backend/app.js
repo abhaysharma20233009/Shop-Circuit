@@ -1,13 +1,24 @@
 const express = require('express');
 const cookieParser=require('cookie-parser')
 const dotenv = require('dotenv');
+const rentRoutes = require('./routes/requestedRentRoute');
+const sellRoutes = require('./routes/requestedSellRoute');
+const productRouter = require('./routes/productRoute');
 const userRouter = require('./routes/userRoutes');
+
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
 
 // Initialize Express app
 const app = express();
 const cors = require('cors');
+
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+  cloud_name: 'dw4p8fd7r',
+  api_key: '722164512214482',
+  api_secret: 'AS1AYdTcMbrj-sZpkNBfxl-03Rs',
+});
 
 app.use(cors({
   origin: 'http://localhost:5173', // Adjust based on frontend URL
@@ -33,6 +44,13 @@ app.use("/api/v1", productRouter);
 
 app.use('/api/v1/users', userRouter);
 
+// 🌟 Routes
+//app.use('/api/v1/users', userRouter);
+
+app.use('/api/v1/rent', rentRoutes);
+app.use('/api/v1/sell', sellRoutes);
+
+
 // 404 handler for undefined routes
 app.use("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
@@ -41,4 +59,6 @@ app.use("*", (req, res, next) => {
 // Global error handler middleware
 app.use(globalErrorHandler);
 
-module.exports = app; // Export app for use in the server setup
+
+module.exports = app;  // Export app for use in the server setup
+

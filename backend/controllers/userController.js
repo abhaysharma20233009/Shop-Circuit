@@ -2,9 +2,9 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
-// const cloudinary = require('cloudinary').v2;
-// const multer = require('multer');
-
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const fs=require('fs');
 
 
 const filterObj = (obj, ...allowedFields) => {
@@ -33,8 +33,7 @@ exports.isLoggedIn = async (req, res, next) => {
 };
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  // 1) Create error if user POSTs password data
-  console.log("hi"+req.body.email);
+ console.log("hi"+req.body);
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
@@ -46,12 +45,12 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   // 2) Filter out unwanted fields names that are not allowed to be updated
   const filteredBody = {
-    ...filterObj(req.body, 'username', 'email'),
+    ...filterObj(req.body, 'username', 'email','contactNumber'),
     ...(req.user.role === 'shopkeeper' ? filterObj(req.body, 'shopName', 'shopAddress') : {}),
-    ...(req.user.role === 'student' ? filterObj(req.body, 'hostel', 'roomNumber') : {})
+    ...(req.user.role === 'student' ? filterObj(req.body, 'hostelName', 'roomNumber') : {})
   };
   
-  console.log(filteredBody);
+  console.log("filteredBody"+filteredBody);
   // 3) Update the user document
   console.log("userId"+req.user._id);
   const updatedUser = await User.findByIdAndUpdate(req.user._id, filteredBody, {
@@ -79,51 +78,54 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 exports.getUser = factory.getOne(User);
-// Do NOT update passwords with this!
 
-// const upload = multer({ dest: 'uploads/' });  // Temporary storage
+const upload = multer({ dest: 'uploads/' });  // Temporary storage
 
-// exports.uploadProfilePhoto = catchAsync(async (req, res, next) => {
-//   // Use Multer middleware to handle file upload
-//   upload.single('profileImage')(req, res, async (err) => {
-//     if (err) return next(new AppError('Error uploading file', 400));
+exports.uploadProfilePhoto = catchAsync(async (req, res, next) => {
+  // Use Multer middleware to handle file upload
 
-//     if (!req.file) {
-//       return next(new AppError('No file uploaded', 400));
-//     }
+  upload.single('profileImage')(req, res, async (err) => {
 
-//     try {
-//       // Upload the image to Cloudinary
-//       const result = await cloudinary.uploader.upload(req.file.path);
 
-//       // Delete the file from temporary storage after uploading to Cloudinary
-//       fs.unlinkSync(req.file.path);
+    console.log("hiimages");
+    if (err) return next(new AppError('Error uploading file', 400));
 
-//       // Update the user's profile with the Cloudinary URL
-//       const updatedUser = await User.findByIdAndUpdate(
-//         req.user._id,
-//         { 'profilePicture': result.secure_url },
-//         { new: true, runValidators: true }
-//       );
+    if (!req.file) {
+      return next(new AppError('No file uploaded', 400));
+    }
 
-//       if (!updatedUser) {
-//         return next(new AppError('User not found', 404));
-//       }
+    try {
+      // Upload the image to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path);
 
-//       // Respond with success
-//       res.status(200).json({
-//         status: 'success',
-//         message: 'Profile photo uploaded successfully',
-//         data: {
-//           profilePicture: updatedUser.profilePicture
-//         }
-//       });
-//     } catch (error) {
-//       console.log(error);
-//       return next(new AppError('Error uploading profile picture', 500));
-//     }
-//   });
-// });
+      // Delete the file from temporary storage after uploading to Cloudinary
+      fs.unlinkSync(req.file.path);
+
+      // Update the user's profile with the Cloudinary URL
+      const updatedUser = await User.findByIdAndUpdate(
+        req.user._id,
+        { 'profilePicture': result.secure_url },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedUser) {
+        return next(new AppError('User not found', 404));
+      }
+
+      // Respond with success
+      res.status(200).json({
+        status: 'success',
+        message: 'Profile photo uploaded successfully',
+        data: {
+          profilePicture: updatedUser.profilePicture
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      return next(new AppError('Error uploading profile picture', 500));
+    }
+  });
+});
 exports.getAllUsers = factory.getAll(User);
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
