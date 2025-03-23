@@ -3,7 +3,9 @@ const cookie = require('cookie');
 const jwt = require('jsonwebtoken');
 const messagesController = require('./controllers/chatController');
 const User = require('./models/userModel');
+const Notification = require("./models/notificationModel");
 
+const users = {}; // userId -> socketId mapping
 function setupSocket(server) {
     const io = socketIo(server, {
         path: "/socket.io",  // Path for socket.io connections
@@ -34,8 +36,32 @@ function setupSocket(server) {
     });
 
     io.on('connection', (socket) => {
-        console.log('A user connected');
-        const senderId = socket.user.id;
+        console.log("A user connected");
+    const userId = socket.user.id;
+    const senderId = userId;
+    users[userId] = socket.id;
+    console.log(`User ${userId} registered with socket ${socket.id}`);
+    // Fetch Unread Notifications
+    socket.on("fetchNotifications", async () => {
+        try {
+          
+          const notifications = await Notification.find({ receiver:userId, isRead: false }).populate("sender", "username profilePicture");
+          //console.log("Notifications found:", notifications);
+          socket.emit("allNotifications", notifications);
+        } catch (error) {
+          console.error("Error fetching notifications:", error);
+        }
+      });
+  
+      // Mark Notifications as Read
+      socket.on("markNotificationsAsRead", async () => {
+        try {
+          await Notification.updateMany({ receiver: userId, isRead: false }, { isRead: true });
+          socket.emit("notificationsMarkedAsRead");
+        } catch (error) {
+          console.error("Error marking notifications as read:", error);
+        }
+      });
         // Join room for sender and receiver, and retrieve conversation history 
         socket.on('joinRoom', async (data) => {
             const { recipientId } = data;
