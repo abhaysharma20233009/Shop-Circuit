@@ -1,6 +1,7 @@
 const ChatMessage = require('../models/chatModel');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
+const Notification = require("../models/notificationModel");
 
 // Get all messages for a conversation between two users
 const getRoomId = (senderId, recipientId) => {
@@ -65,6 +66,31 @@ exports.createMessage = async (io, senderId, recipientId, content) => {
             ...messageData,
             messageId: savedMessage._id,
         });
+
+        //nofication
+        // Check if recipient is online
+    const recipientSocket = io.sockets.adapter.rooms.get(recipientId);
+
+    if (!recipientSocket) {
+      // Create notification only if recipient is offline
+      const newNotification = new Notification({
+        receiver: recipientId,
+        sender: senderId,
+        messagePreview: content.substring(0, 50),
+        isRead: false,
+      });
+
+      try {
+        await newNotification.save();
+        io.to(`${recipientId}`).emit("newMessageNotification", {
+          sender: senderId,
+          messagePreview: content,
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        console.error("Error saving notification:", error);
+      }
+    }
 
         // Return only the relevant properties of the latest message
         return {
@@ -194,6 +220,12 @@ exports.markAllMessagesAsSeen = async (io, senderId, recipientId) => {
 
         await chat.save();
         io.to(`${senderId}-${recipientId}`).emit('allMessagesSeen', { messages: chat.messages });
+
+        // Mark all related notifications as read
+    await Notification.updateMany(
+        { receiver: senderId, sender: recipientId, isRead: false },
+        { isRead: true }
+      );
 
         return { messages: chat.messages};
     } catch (error) {
