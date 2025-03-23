@@ -1,30 +1,46 @@
 import { useState, useEffect } from "react";
-import { FaBars, FaTimes, FaSearch, FaMapMarkerAlt, FaSun, FaMoon } from "react-icons/fa";
+import { FaBars, FaTimes, FaSearch, FaMapMarkerAlt, FaSun, FaBell } from "react-icons/fa";
 import defaulPic from '../assets/react.svg';
 import { useNavigate } from "react-router-dom";
+import NotificationDropdown from "./Notification";
 
 export default function Navbar() {
   
-  const [darkMode, setDarkMode] = useState(false);
+  // const [darkMode, setDarkMode] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isBellOpen, setIsBellOpen] = useState(false);
+  const [data, setData] = useState("");
+
   const navigate=useNavigate();
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.body.classList.toggle("dark-mode", !darkMode);
-  };
+  // const toggleDarkMode = () => {
+  //   setDarkMode(!darkMode);
+  //   document.body.classList.toggle("dark-mode", !darkMode);
+  // };
  
   const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const toggleNotificationBell = () => {
+    setIsBellOpen(!isBellOpen);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isOpen && !event.target.closest(".sidebar")) {
         setIsOpen(false);
       }
+
+      if (isBellOpen && !event.target.closest(".bell-dropdown, .bell-icon")) {
+        setIsBellOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen,isBellOpen]);
+
+  const handleDataFromChild = (childData) => {
+    setData(childData);
+  };
 
   return (
     <div className={`flex flex-col md:flex-row items-center justify-between p-3 m-0 bg-gray-800 text-white`}> 
@@ -33,13 +49,11 @@ export default function Navbar() {
         <div className="text-xl font-bold">Shop Circuit</div>
       </div>
       
-      {/* <div className="flex items-center gap-4">
-        <button className="text-2xl" onClick={toggleDarkMode}>{darkMode ? <FaSun /> : <FaMoon />}</button>
-        <div className="flex items-center gap-2">
-          <FaMapMarkerAlt />
-          <span>Nearby</span>
+      <div className="relative flex items-center gap-2 cursor-pointer bell-icon" onClick={toggleNotificationBell}>
+          <FaBell className="text-2xl"/>
+          <span className=" text-white rounded-full">{data}</span>
+          {isBellOpen && <NotificationDropdown sendData={handleDataFromChild}/>}
         </div>
-      </div> */}
       
       
       
