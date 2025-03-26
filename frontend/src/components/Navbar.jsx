@@ -66,6 +66,7 @@ export default function Navbar() {
         <ul className="mt-5 space-y-4">
           <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/dashboard')}>Home</li>
           <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/me')}>Profile</li>
+          <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/chat')}>Chats</li>
           <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/sells')}>sell</li>
           <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/rents')}>rent requests</li>
           <li className="hover:text-gray-300 cursor-pointer">About</li>
