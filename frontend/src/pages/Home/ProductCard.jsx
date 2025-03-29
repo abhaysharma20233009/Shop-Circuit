@@ -10,13 +10,18 @@ const ProductCard = ({ product }) => {
       
     <div className="relative w-full max-w-xs h-80 overflow-hidden rounded-lg group cursor-pointer shadow-md hover:shadow-lg transition-shadow">
       {/* Background Image */}
-      <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-blue-500">
+      <img
+          src={product.productImage}
+          alt={product.productName}
+          className="w-full h-full object-cover"
+        />
+      {/* <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-blue-500">
         <img
           src={product.productImage}
           alt={product.productName}
           className="w-full h-full object-cover"
         />
-      </div>
+      </div> */}
 
       {/* Overlay to darken the image slightly */}
       <div className="absolute inset-0 bg-black/30"></div>
