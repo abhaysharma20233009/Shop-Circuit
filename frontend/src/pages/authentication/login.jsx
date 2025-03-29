@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Player } from "@lottiefiles/react-lottie-player";
+import loadingAnimation from "../../assets/loading.json"; // Ensure this file exists
+
 export default function LoginPage() {
-  const navigate=useNavigate();
-    const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -17,7 +20,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
@@ -27,57 +29,66 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-        credentials: "include", // Ensures cookies are sent with the request
+        credentials: "include",
       });
 
       const data = await response.json();
-      setLoading(false);
+      if (!response.ok) throw new Error(data.message || "Login failed");
 
-      if (response.ok) {
-        setSuccess("Signup successful! Redirecting...");
-        navigate('/dashboard');
-      } else {
-        setError(data.message || "Login failed. Please try again.");
-      }
+      toast.success("Login successful! Redirecting...", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err) {
+      toast.error(err.message, {
+        position: "top-right",
+        autoClose: 4000,
+      });
+    } finally {
       setLoading(false);
-      setError("Something went wrong. Please try again.");
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-6 bg-white shadow-lg rounded-2xl">
-        <h2 className="text-2xl font-bold text-center text-gray-800">Login</h2>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#03001e] via-[#7303c0] to-[#ec38bc] text-white relative overflow-hidden">
+      {/* Background Animation */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, scale: 1.05 }}
+        transition={{ duration: 1.5, ease: "easeInOut" }}
+        className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-purple-900 via-black to-gray-900 opacity-50"
+      ></motion.div>
 
-          {error && <p className="text-red-500 text-center">{error}</p>}
-        {success && <p className="text-green-500 text-center">{success}</p>}
-        <form onSubmit={handleSubmit} className="mt-4">
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            onChange={handleChange}
-            className="w-full p-3 mb-3 border rounded-lg"
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            onChange={handleChange}
-            className="w-full p-3 mb-3 border rounded-lg"
-            required
-          />
-          <button
+      {/* Login Form Card */}
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="relative w-full max-w-md p-8 bg-white/10 backdrop-blur-lg shadow-xl rounded-2xl border border-purple-400"
+      >
+        <h2 className="text-3xl font-extrabold text-center text-purple-400">🔐 Login</h2>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <input type="email" name="email" placeholder="Email" onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-purple-500 focus:ring-2 focus:ring-purple-300" required />
+          <input type="password" name="password" placeholder="Password" onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-purple-500 focus:ring-2 focus:ring-purple-300" required />
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             type="submit"
-            className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+            className="w-full py-3 text-lg font-semibold bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl shadow-lg hover:from-purple-600 hover:to-indigo-700 transition-all flex items-center justify-center"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
-          </button>
+            {loading ? (
+              <Player src={loadingAnimation} className="w-10 h-10" autoplay loop />
+            ) : (
+              "🚀 Login"
+            )}
+          </motion.button>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

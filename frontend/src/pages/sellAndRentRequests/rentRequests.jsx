@@ -39,29 +39,34 @@ export default function AllRequests() {
   };
 
   return (
-    <div className="pl-10 px-4 py-6">
-      <h1 className="text-3xl font-bold text-center mb-6">All Requests</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    <div className="min-h-screen p-10 bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+      <h1 className="text-4xl font-extrabold text-center text-purple-400 mb-10 tracking-wide">
+        🚀 All Requests 🚀
+      </h1>
+
+      {/* Grid Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
         {products.slice(0, visibleProducts).map((product) => (
           <div
             key={product._id}
-            className="border p-4 rounded-lg shadow-md hover:shadow-lg transition"
+            className="relative group bg-white/10 backdrop-blur-lg border border-gray-700 shadow-lg rounded-xl p-5 transition-transform hover:scale-105 hover:border-purple-500"
           >
-            <h2 className="text-lg font-semibold mt-2">{product.itemName}</h2>
-            <p className="text-gray-800 font-medium">
-              Renter: {product.studentId.username}
-            </p>
-            <p className="text-gray-600">
-              Items required: {product.numberOfItems}
-            </p>
-            <p className="text-gray-600">Status: {product.status}</p>
-            <p className="text-gray-600">Description: {product.description}</p>
+
+            {/* Request Details */}
+            <h2 className="text-xl font-bold text-purple-300">{product.itemName}</h2>
+            <p className="text-gray-400">🔹 Renter: {product.studentId?.username}</p>
+            <p className="text-gray-300">🛒 Items Required: {product.numberOfItems}</p>
+            <p className="text-yellow-400 font-semibold">⚡ Status: {product.status}</p>
+            <p className="text-gray-400">📜 Description: {product.description}</p>
+
+            {/* Renter Details */}
+
 
             {product.studentId && (
-              <div className="mt-2 text-gray-700">
-                <p>Contact: {product.studentId.contactNumber}</p>
-                <p>Hostel: {product.studentId.hostelName}</p>
-                <p>Room: {product.studentId.roomNumber}</p>
+              <div className="mt-3 bg-gray-900/50 p-3 rounded-lg text-sm text-gray-300">
+                <p>📞 Contact: {product.studentId.contactNumber}</p>
+                <p>🏠 Hostel: {product.studentId.hostelName}</p>
+                <p>🚪 Room: {product.studentId.roomNumber}</p>
               </div>
             )}
 
@@ -77,13 +82,16 @@ export default function AllRequests() {
         ))}
       </div>
 
+
+      {/* Load More Button */}
+
       {visibleProducts < products.length && (
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center mt-12">
           <button
             onClick={loadMoreProducts}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 text-lg bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-full shadow-lg hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-105"
           >
-            Load More
+            🔄 Load More
           </button>
         </div>
       )}

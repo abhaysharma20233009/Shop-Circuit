@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaTimes } from "react-icons/fa"; // Font Awesome Close Icon
 
 export default function RentRequestForm({ isOpen, onClose }) {
   const [rentData, setRentData] = useState({
@@ -6,7 +7,7 @@ export default function RentRequestForm({ isOpen, onClose }) {
     numberOfItems: "",
     duration: "",
     description: "",
-    status:"pending",
+    status: "pending",
   });
 
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,7 @@ export default function RentRequestForm({ isOpen, onClose }) {
       const response = await fetch("http://localhost:3000/api/v1/rent/rent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials:"include",
+        credentials: "include",
         body: JSON.stringify(rentData),
       });
 
@@ -46,69 +47,55 @@ export default function RentRequestForm({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h2 className="text-xl font-bold mb-4 text-center">Rent Request</h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-lg">
+      <div className="relative bg-white/10 border border-gray-700 shadow-2xl shadow-blue-500/30 rounded-xl p-6 w-96 backdrop-blur-lg">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-white transition-transform hover:scale-110"
+        >
+          <FaTimes size={18} />
+        </button>
+
+        <h2 className="text-2xl font-bold text-center text-blue-400 mb-6 neon-text">
+          🚀 Rent Request 🚀
+        </h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Item Name</label>
-            <input
-              type="text"
-              name="itemName"
-              value={rentData.itemName}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            />
-          </div>
+          {/* Input Fields */}
+          {[
+            { label: "Item Name", name: "itemName", type: "text" },
+            { label: "Number of Items", name: "numberOfItems", type: "number" },
+            { label: "Duration (months)", name: "duration", type: "text" },
+            { label: "Description", name: "description", type: "text" },
+          ].map((field, index) => (
+            <div key={index}>
+              <label className="block text-sm font-medium text-gray-300">
+                {field.label}
+              </label>
+              <input
+                type={field.type}
+                name={field.name}
+                value={rentData[field.name]}
+                onChange={handleChange}
+                className="w-full p-3 mt-1 bg-gray-900/50 text-white border border-gray-600 rounded-lg focus:border-blue-400 focus:ring-2 focus:ring-blue-500 transition-all"
+                required
+              />
+            </div>
+          ))}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Number of Items</label>
-            <input
-              type="number"
-              name="numberOfItems"
-              value={rentData.numberOfItems}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Duration (months)</label>
-            <input
-              type="text"
-              name="duration"
-              value={rentData.duration}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
-            <input
-              type="text"
-              name="description"
-              value={rentData.description}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            />
-          </div>
-
+          {/* Action Buttons */}
           <div className="flex justify-between mt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+              className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-blue-800 transition-all transform hover:scale-105"
               disabled={loading}
             >
               {loading ? "Submitting..." : "Submit"}

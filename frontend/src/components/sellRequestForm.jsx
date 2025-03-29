@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaTimes, FaUpload } from "react-icons/fa";
 
 export default function SellRequestForm({ isOpen, onClose }) {
   const [sellData, setSellData] = useState({
@@ -9,11 +10,11 @@ export default function SellRequestForm({ isOpen, onClose }) {
     sellerType: "",
     category: "",
   });
-
+  
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  if (!isOpen) return null; // Don't render if modal is closed
+  if (!isOpen) return null;
 
   const handleChange = (e) => {
     setSellData({ ...sellData, [e.target.name]: e.target.value });
@@ -29,32 +30,22 @@ export default function SellRequestForm({ isOpen, onClose }) {
 
     try {
       const formData = new FormData();
-      formData.append("productName", sellData.productName);
-      formData.append("price", sellData.price);
-      formData.append("noOfItems", sellData.noOfItems);
-      formData.append("description", sellData.description);
-      formData.append("sellerType", sellData.sellerType);
-      formData.append("category", sellData.category);
-      console.log("image"+image)
+      Object.keys(sellData).forEach((key) => formData.append(key, sellData[key]));
       formData.append("image", image);
-      
 
       const response = await fetch("http://localhost:3000/api/v1/products/createProduct", {
         method: "POST",
-        credentials: "include", // Include authentication cookies
-        body: formData, // ✅ No need for JSON.stringify
+        credentials: "include",
+        body: formData,
       });
 
       if (!response.ok) {
         throw new Error("Failed to submit sell request.");
       }
 
-      const data = await response.json();
-      console.log("Sell Request Submitted:", data);
       alert("Sell request submitted successfully!");
-      onClose(); // Close modal
+      onClose();
     } catch (error) {
-      console.error("Error submitting sell request:", error);
       alert("Failed to submit sell request.");
     } finally {
       setLoading(false);
@@ -62,122 +53,86 @@ export default function SellRequestForm({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-xl font-bold mb-4 text-center">Sell Product</h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-lg">
+      <div className="relative bg-white/10 border border-gray-700 shadow-2xl shadow-blue-500/30 rounded-xl p-6 w-[600px] backdrop-blur-lg">
+        {/* Close Button */}
+        <button onClick={onClose} className="absolute top-3 right-3 text-gray-400 hover:text-white">
+          <FaTimes size={18} />
+        </button>
+
+        <h2 className="text-2xl font-bold text-center text-blue-400 mb-4">🛒 Sell Your Product 🚀</h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Product Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Product Name</label>
-            <input
-              type="text"
-              name="productName"
-              value={sellData.productName}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            />
-          </div>
-
-          {/* Price */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Price ($)</label>
-            <input
-              type="number"
-              name="price"
-              value={sellData.price}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            />
-          </div>
-
-          {/* Number of Items */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Number of Items</label>
-            <input
-              type="number"
-              name="noOfItems"
-              value={sellData.noOfItems}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
-            <textarea
-              name="description"
-              value={sellData.description}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            />
-          </div>
-
-          {/* Seller Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Seller Type</label>
-            <select
-              name="sellerType"
-              value={sellData.sellerType}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            >
-              <option value="">Select Seller Type</option>
-              <option value="shopkeeper">shopkeeper</option>
-              <option value="student">student</option>
-            </select>
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Category</label>
-            <select
-              name="category"
-              value={sellData.category}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-              required
-            >
-              <option value="">Select Category</option>
-              <option value="electronics">electronics</option>
-              <option value="food">food</option>
-              <option value="vehicle">vehicle</option>
-              <option value="fashion">fashion</option>
-              <option value="stationary">stationary</option>
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            {[{ label: "Product Name", name: "productName", type: "text" },
+              { label: "Price ($)", name: "price", type: "number" },
+              { label: "Number of Items", name: "noOfItems", type: "number" },
+              { label: "Seller Type", name: "sellerType", options: ["shopkeeper", "student"] },
+              { label: "Category", name: "category", options: ["electronics", "food", "vehicle", "fashion", "stationary"] }]
+              .map((field, index) => (
+                <div key={index}>
+                  <label className="block text-sm font-medium text-gray-300">{field.label}</label>
+                  {field.options ? (
+                    <select
+                      name={field.name}
+                      value={sellData[field.name]}
+                      onChange={handleChange}
+                      className="w-full p-3 mt-1 bg-gray-900/50 text-white border border-gray-600 rounded-lg"
+                      required
+                    >
+                      <option value="">Select {field.label}</option>
+                      {field.options.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type={field.type}
+                      name={field.name}
+                      value={sellData[field.name]}
+                      onChange={handleChange}
+                      className="w-full p-3 mt-1 bg-gray-900/50 text-white border border-gray-600 rounded-lg"
+                      required
+                    />
+                  )}
+                </div>
+              ))}
           </div>
 
           {/* Product Image Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Product Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
+            <label className="block text-sm font-medium text-gray-300">Product Image</label>
+            <div className="relative w-full p-3 border border-gray-600 rounded-lg bg-gray-900/50 flex items-center justify-center cursor-pointer hover:border-blue-400">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                required
+              />
+              <FaUpload className="text-blue-400 text-xl" />
+              <span className="ml-2 text-gray-400">{image ? image.name : "Upload Image"}</span>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300">Description</label>
+            <textarea
+              name="description"
+              value={sellData.description}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 bg-gray-900/50 text-white border border-gray-600 rounded-lg"
               required
             />
           </div>
 
           {/* Buttons */}
           <div className="flex justify-between mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
-            >
+            <button onClick={onClose} type="button" className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              disabled={loading}
-            >
+            <button type="submit" className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-blue-800">
               {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
