@@ -10,7 +10,7 @@ export default function ProductList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", "Stationary", "Fashion", "Grocery", "Food", "Vehicle","Electronics"];
+  const categories = ["All", "Stationary", "Fashion", "Grocery", "Food", "Vehicle", "Electronics"];
 
   // Function to filter products
   const getFilteredProducts = () => {
@@ -26,7 +26,7 @@ export default function ProductList() {
       );
     }
 
-    return filtered; // Return full filtered list without slicing
+    return filtered;
   };
 
   const loadMoreProducts = () => {
@@ -34,19 +34,19 @@ export default function ProductList() {
   };
 
   return (
-    <div>
+    <div className="bg-gray-900 min-h-screen ">
       {/* Search Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between p-3 bg-gray-800 text-white">
-        <div className="flex items-center gap-4 pb-2 flex-grow justify-center">
-          <div className="relative">
+      <div className="flex flex-col md:flex-row items-center justify-between  bg-gray-900 text-white rounded-lg shadow-lg mx-4">
+        <div className="flex items-center gap-4 flex-grow justify-center">
+          <div className="relative w-full max-w-md">
             <input
               type="text"
               placeholder="Search for products..."
-              className="p-2 rounded text-white border outline-none"
+              className="w-full p-3 pl-10 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-blue-400 outline-none transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
+            <button className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-all">
               <FaSearch />
             </button>
           </div>
@@ -54,12 +54,14 @@ export default function ProductList() {
       </div>
 
       {/* Category Filter Buttons */}
-      <div className="flex flex-wrap gap-4 p-3 bg-gray-200 shadow-md items-center justify-center">
+      <div className="flex flex-wrap border border-gray-800 gap-3 p-2 mt-1 justify-center">
         {categories.map((category) => (
           <button
             key={category}
-            className={`px-3 py-1 rounded-md transition-all duration-500 ease-in-out ${
-              selectedCategory === category ? "bg-blue-900 text-white" : "bg-white text-black border"
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 shadow-md ${
+              selectedCategory === category
+                ? "bg-blue-600 text-white shadow-blue-500/50 scale-105"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white"
             }`}
             onClick={() => setSelectedCategory(category)}
           >
@@ -69,9 +71,9 @@ export default function ProductList() {
       </div>
 
       {/* Product List */}
-      <div className="pl-10 px-4 py-6">
-        <h1 className="text-3xl font-bold text-center mb-6">Product List</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div className="px-6 ">
+        <h1 className="text-2xl font-bold text-center text-white mb-6">Explore Products</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
           {getFilteredProducts().slice(0, visibleProducts).map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -82,7 +84,7 @@ export default function ProductList() {
           <div className="flex justify-center mt-8">
             <button
               onClick={loadMoreProducts}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-all shadow-lg hover:shadow-blue-500/50 animate-pulse"
             >
               Load More
             </button>
