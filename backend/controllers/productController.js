@@ -2,18 +2,14 @@ const Product = require("./../models/productModel");
 const catchAsync = require("./../utils/catchAsync");
 const APIFeatures = require("./../utils/apiFeatures");
 const AppError = require("./../utils/appError");
-const cloudinary = require('cloudinary').v2;
-const multer = require('multer');
-const fs=require('fs');
-
+const cloudinary = require("cloudinary").v2;
+const multer = require("multer");
+const fs = require("fs");
 
 exports.createProduct = async (req, res) => {
   try {
-    console.log("Received Data:", req.body);
-    console.log("User Info:", req.user);
-    console.log("Received File:", req.file);
-
-    const { productName, price, noOfItems, description, sellerType, category } = req.body;
+    const { productName, price, noOfItems, description, sellerType, category } =
+      req.body;
 
     // Check if an image was uploaded
     if (!req.file) {
@@ -22,7 +18,7 @@ exports.createProduct = async (req, res) => {
 
     // Upload the image to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path);
-    
+
     // Delete the local file after uploading to Cloudinary
     fs.unlinkSync(req.file.path);
 
@@ -97,13 +93,17 @@ exports.createProduct = async (req, res) => {
 // });
 exports.getAllProducts = catchAsync(async (req, res, next) => {
   try {
-    const products = await Product.find({ status: "pending" }).populate("sellerId", "shopName shopAddress contactNumber sellerType").exec();
-    
-    console.log("Fetched products:", products); // Debug log
+    const products = await Product.find({ status: "pending" })
+      .populate("sellerId", "shopName shopAddress contactNumber sellerType")
+      .exec();
 
     const productsWithSellers = products
-      .filter(product => product.sellerType && product.sellerType.toLowerCase() === "shopkeeper") // Prevents crash if sellerId is null
-      .map(product => ({ ...product.toObject() }));
+      .filter(
+        (product) =>
+          product.sellerType &&
+          product.sellerType.toLowerCase() === "shopkeeper"
+      ) // Prevents crash if sellerId is null
+      .map((product) => ({ ...product.toObject() }));
 
     res.status(200).json({
       status: "success",
@@ -112,35 +112,33 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-    res.status(500).json({ status: "error", message: "Failed to fetch products", error });
+    res
+      .status(500)
+      .json({ status: "error", message: "Failed to fetch products", error });
   }
 });
 
 exports.getUserSells = catchAsync(async (req, res, next) => {
-  console.log(req.user);
-  const userId=req.user._id;
-   console.log("userId"+userId);
-  const sells = await Product.find({ sellerId: userId}) 
-  console.log(sells);
-  res.status(200).json({ status: 'success', data:sells });
+  const userId = req.user._id;
+  const sells = await Product.find({ sellerId: userId });
+  res.status(200).json({ status: "success", data: sells });
 });
 
 exports.markSoldProduct = async (req, res) => {
   try {
-    const {requestId}=req.params;
-    console.log(requestId);
+    const { requestId } = req.params;
     const sell = await Product.findById(requestId);
-    console.log()
+    console.log();
     if (!sell) {
-      return res.status(404).json({ message: 'product not found' });
+      return res.status(404).json({ message: "product not found" });
     }
 
-    sell.status='sold';
+    sell.status = "sold";
     await sell.save();
 
-    res.status(200).json({ message: 'Product marked sold' });
+    res.status(200).json({ message: "Product marked sold" });
   } catch (error) {
-    res.status(500).json({ message: 'Error marking sold the product', error });
+    res.status(500).json({ message: "Error marking sold the product", error });
   }
 };
 
@@ -148,24 +146,41 @@ exports.getAllStudentSells = catchAsync(async (req, res, next) => {
   let filter = {};
   if (req.query.sellerId) filter.sellerId = req.query.sellerId;
 
-  const validCategories = ["stationary", "vehicle", "fashion", "grocery", "electronics", "food"];
-  if (req.query.category && !validCategories.includes(req.query.category.toLowerCase())) {
+  const validCategories = [
+    "stationary",
+    "vehicle",
+    "fashion",
+    "grocery",
+    "electronics",
+    "food",
+  ];
+  if (
+    req.query.category &&
+    !validCategories.includes(req.query.category.toLowerCase())
+  ) {
     return next(new AppError("Invalid category provided", 400));
   }
   if (req.query.category) filter.category = req.query.category.toLowerCase();
 
   const features = new APIFeatures(
-    Product.find(filter).populate("sellerId", "username contactNumber hostelName roomNumber sellerType"),
+    Product.find(filter).populate(
+      "sellerId",
+      "username contactNumber hostelName roomNumber sellerType profilePicture"
+    ),
     req.query
-  ).filter().sort().limitFields().paginate();
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
 
   const products = await features.query.exec();
   const productsWithSellers = products
-  .filter(product => product.sellerType === "student") // Filter only shopkeepers
-  .map(product => {
-    const productData = { ...product.toObject() };
-    return productData;
-  });
+    .filter((product) => product.sellerType === "student") // Filter only shopkeepers
+    .map((product) => {
+      const productData = { ...product.toObject() };
+      return productData;
+    });
 
   res.status(200).json({
     status: "success",
@@ -176,11 +191,16 @@ exports.getAllStudentSells = catchAsync(async (req, res, next) => {
   });
 });
 
-
-
 exports.getProductsByCategory = catchAsync(async (req, res, next) => {
   const { categoryName } = req.params;
-  const validCategories = ["stationary", "vehicle", "fashion", "grocery", "electronics", "food"];
+  const validCategories = [
+    "stationary",
+    "vehicle",
+    "fashion",
+    "grocery",
+    "electronics",
+    "food",
+  ];
 
   if (!validCategories.includes(categoryName.toLowerCase())) {
     return next(new AppError("Invalid category provided", 400));

@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const chatMessageSchema = new mongoose.Schema({
-  //define a unique roomId fro two user's conversation
   roomId: { type: String, required: true },
   messages: [
     {
@@ -24,6 +23,16 @@ const chatMessageSchema = new mongoose.Schema({
       timestamp: { type: Date, default: Date.now },
     },
   ],
+  lastMessageTimestamp: { type: Date, default: null }, // ✅ New field for sorting
+});
+
+// Middleware to update lastMessageTimestamp
+chatMessageSchema.pre("save", function (next) {
+  if (this.messages.length > 0) {
+    this.lastMessageTimestamp =
+      this.messages[this.messages.length - 1].timestamp;
+  }
+  next();
 });
 
 const ChatMessage = mongoose.model("ChatMessage", chatMessageSchema);

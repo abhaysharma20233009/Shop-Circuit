@@ -55,14 +55,17 @@ export default function Navbar() {
             <FaTimes />
           </button>
         </div>
+
         <ul className="mt-6 space-y-6 text-lg font-semibold">
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/dashboard')}>🏠 Home</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/me')}>👤 Profile</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/sells')}>🛒 Sells</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/rents')}>🔄 Rents</li>
+           <li className="hover:text-gray-300 cursor-pointer" onClick={()=>navigate('/chat')}>Chats</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/about')}>📜 About</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110"onClick={() => navigate('/services')}>⚙️ Services</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110"onClick={() => navigate('/contact')}>📞 Contact</li>
+
         </ul>
       </div>
     </div>

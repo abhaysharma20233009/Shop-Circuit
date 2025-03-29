@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
 export default function AllSells() {
   const [products, setProducts] = useState([]);
   const [visibleProducts, setVisibleProducts] = useState(5);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/v1/products/sells", {
-          credentials: "include",
-        });
+        const response = await fetch(
+          "http://localhost:3000/api/v1/products/sells",
+          {
+            credentials: "include",
+          }
+        );
         const data = await response.json();
         if (data.status === "success") {
           setProducts(data.data.products);
@@ -27,7 +31,11 @@ export default function AllSells() {
   const loadMoreProducts = () => {
     setVisibleProducts((prev) => prev + 10);
   };
-
+  const handleMessageClick = (studentId) => {
+    if (studentId) {
+      navigate(`/chat`, { state: { studentId } }); // Redirects to chat
+    }
+  };
   return (
     <div className="min-h-screen p-10 bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       <h1 className="text-4xl font-extrabold text-center text-cyan-400 mb-8 tracking-wider">
@@ -41,6 +49,7 @@ export default function AllSells() {
             key={product._id}
             className="relative group bg-white/10 backdrop-blur-lg border border-gray-700 shadow-lg rounded-xl p-4 transition-transform hover:scale-105"
           >
+
             {/* Image */}
             <div className="relative w-full h-48 rounded-lg overflow-hidden">
               <img
@@ -56,6 +65,7 @@ export default function AllSells() {
             <p className="text-gray-300 font-semibold mt-1">👤 Seller: {product.sellerId?.username}</p>
 
             {/* Seller Details */}
+
             {product.sellerId && (
               <div className="mt-3 bg-gray-900/50 p-3 rounded-lg text-sm text-gray-300">
                 <p>📞 Contact: {product.sellerId.contactNumber}</p>
@@ -63,11 +73,18 @@ export default function AllSells() {
                 <p>🚪 Room: {product.sellerId.roomNumber}</p>
               </div>
             )}
+            {/* ✅ Message Button */}
+            <button
+              onClick={() => handleMessageClick(product.sellerId)}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full flex items-center justify-center gap-2 hover: cursor-pointer"
+            >
+              <MessageCircle size={18} />
+              Message
+            </button>
           </div>
         ))}
       </div>
 
-      {/* Load More Button */}
       {visibleProducts < products.length && (
         <div className="flex justify-center mt-12">
           <button
