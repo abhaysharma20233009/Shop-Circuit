@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
+import { MessageCircle } from "lucide-react";
 
 export default function AllRequests() {
   const [products, setProducts] = useState([]);
   const [visibleProducts, setVisibleProducts] = useState(5);
+  const navigate = useNavigate(); // ✅ Initialize navigate
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -11,7 +14,6 @@ export default function AllRequests() {
           credentials: "include",
         });
         const data = await response.json();
-        console.log("data"+data); 
         if (data.status === "success") {
           setProducts(data.data);
         } else {
@@ -29,6 +31,13 @@ export default function AllRequests() {
     setVisibleProducts((prev) => prev + 10);
   };
 
+  // ✅ Function to navigate to chat
+  const handleMessageClick = (studentId) => {
+    if (studentId) {
+      navigate(`/chat`, { state: { studentId } }); // Redirects to chat
+    }
+  };
+
   return (
     <div className="pl-10 px-4 py-6">
       <h1 className="text-3xl font-bold text-center mb-6">All Requests</h1>
@@ -39,11 +48,15 @@ export default function AllRequests() {
             className="border p-4 rounded-lg shadow-md hover:shadow-lg transition"
           >
             <h2 className="text-lg font-semibold mt-2">{product.itemName}</h2>
-            <p className="text-gray-800 font-medium">Renter: {product.studentId.username}</p>
-            <p className="text-gray-600">Items required: {product.numberOfItems}</p>
-            <p className="text-gray-600">status: {product.status}</p>
-            <p className="text-gray-600">description: {product.description}</p>
-          
+            <p className="text-gray-800 font-medium">
+              Renter: {product.studentId.username}
+            </p>
+            <p className="text-gray-600">
+              Items required: {product.numberOfItems}
+            </p>
+            <p className="text-gray-600">Status: {product.status}</p>
+            <p className="text-gray-600">Description: {product.description}</p>
+
             {product.studentId && (
               <div className="mt-2 text-gray-700">
                 <p>Contact: {product.studentId.contactNumber}</p>
@@ -51,9 +64,19 @@ export default function AllRequests() {
                 <p>Room: {product.studentId.roomNumber}</p>
               </div>
             )}
+
+            {/* ✅ Message Button */}
+            <button
+              onClick={() => handleMessageClick(product.studentId)}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full flex items-center justify-center gap-2 hover: cursor-pointer"
+            >
+              <MessageCircle size={18} />
+              Message
+            </button>
           </div>
         ))}
       </div>
+
       {visibleProducts < products.length && (
         <div className="flex justify-center mt-8">
           <button

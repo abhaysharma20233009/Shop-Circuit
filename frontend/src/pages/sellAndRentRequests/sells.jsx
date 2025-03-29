@@ -1,17 +1,20 @@
 import { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
 export default function AllSells() {
   const [products, setProducts] = useState([]);
   const [visibleProducts, setVisibleProducts] = useState(5);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/v1/products/sells", {
-          credentials: "include",
-        });
+        const response = await fetch(
+          "http://localhost:3000/api/v1/products/sells",
+          {
+            credentials: "include",
+          }
+        );
         const data = await response.json();
-        console.log("data"+data.data.products); 
         if (data.status === "success") {
           setProducts(data.data.products);
         } else {
@@ -28,7 +31,11 @@ export default function AllSells() {
   const loadMoreProducts = () => {
     setVisibleProducts((prev) => prev + 10);
   };
-
+  const handleMessageClick = (studentId) => {
+    if (studentId) {
+      navigate(`/chat`, { state: { studentId } }); // Redirects to chat
+    }
+  };
   return (
     <div className="pl-10 px-4 py-6">
       <h1 className="text-3xl font-bold text-center mb-6">All Sells</h1>
@@ -43,9 +50,15 @@ export default function AllSells() {
               alt={product.productName}
               className="w-full h-40 object-cover rounded-md"
             />
-            <h2 className="text-lg font-semibold mt-2">{product.productName}</h2>
-            <p className="text-gray-600">Items Available: {product.noOfItems}</p>
-            <p className="text-gray-800 font-medium">Seller: {product.sellerId.username}</p>
+            <h2 className="text-lg font-semibold mt-2">
+              {product.productName}
+            </h2>
+            <p className="text-gray-600">
+              Items Available: {product.noOfItems}
+            </p>
+            <p className="text-gray-800 font-medium">
+              Seller: {product.sellerId.username}
+            </p>
             {product.sellerId && (
               <div className="mt-2 text-gray-700">
                 <p>Contact: {product.sellerId.contactNumber}</p>
@@ -53,9 +66,18 @@ export default function AllSells() {
                 <p>Room: {product.sellerId.roomNumber}</p>
               </div>
             )}
+            {/* ✅ Message Button */}
+            <button
+              onClick={() => handleMessageClick(product.sellerId)}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full flex items-center justify-center gap-2 hover: cursor-pointer"
+            >
+              <MessageCircle size={18} />
+              Message
+            </button>
           </div>
         ))}
       </div>
+
       {visibleProducts < products.length && (
         <div className="flex justify-center mt-8">
           <button
