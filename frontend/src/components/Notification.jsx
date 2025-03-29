@@ -18,12 +18,10 @@ const NotificationDropdown = ({ sendData }) => {
         const updatedNotifications = { ...prev };
 
         if (updatedNotifications[data.sender._id]) {
-          // Agar sender already exist karta hai, to message update kar aur count badha de
           updatedNotifications[data.sender._id].count += 1;
           updatedNotifications[data.sender._id].latestMessage =
             data.messagePreview;
         } else {
-          // Naya sender hai to naye data ke sath add kar
           updatedNotifications[data.sender._id] = {
             sender: data.sender,
             latestMessage: data.messagePreview,
@@ -37,7 +35,6 @@ const NotificationDropdown = ({ sendData }) => {
       setCount((prevCount) => prevCount + 1);
     });
 
-    // Fetch all unread notifications from DB
     socket.emit("fetchNotifications");
 
     socket.on("allNotifications", (fetchedNotifications) => {
@@ -49,11 +46,9 @@ const NotificationDropdown = ({ sendData }) => {
         const senderId = notif.sender._id;
 
         if (updatedNotifications[senderId]) {
-          // Agar sender already exist karta hai, to message update kar aur count badha de
           updatedNotifications[senderId].count += 1;
           updatedNotifications[senderId].latestMessage = notif.messagePreview;
         } else {
-          // Naya sender hai to naye data ke sath add kar
           updatedNotifications[senderId] = {
             sender: notif.sender,
             latestMessage: notif.messagePreview,
@@ -78,39 +73,39 @@ const NotificationDropdown = ({ sendData }) => {
     };
   }, []);
 
-  // Mark all notifications as read
   const markAsRead = () => {
     socket.emit("markNotificationsAsRead");
     setNotifications({});
     setCount(0);
   };
 
-  // Send count to parent whenever count updates
   useEffect(() => {
     sendData(count);
   }, [count, sendData]);
 
   return (
-    <div className="absolute z-10 right-0 mt-48 w-72 h-auto bg-gray-700 text-white border border-gray-600 shadow-lg rounded-md p-2 bell-dropdown">
-      <h3 className="text-lg font-semibold">Notifications ({count})</h3>
+    <div className="absolute z-50 right-0 mt-48 w-80 bg-gray-900/80 backdrop-blur-2xl border border-cyan-500 shadow-xl rounded-2xl p-4 bell-dropdown transition-all duration-300 ease-in-out hover:shadow-cyan-500/50">
+      <h3 className="text-lg font-semibold text-cyan-300 flex justify-between items-center">
+        Notifications <span className="text-cyan-400">({count})</span>
+      </h3>
       {count === 0 ? (
-        <p className="text-gray-400 text-center">No notifications</p>
+        <p className="text-gray-400 text-center py-4">No new notifications</p>
       ) : (
-        <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-gray-100 scrollbar-gray-900 scroll-bg-gray-900">
+        <div className="max-h-64 overflow-y-auto custom-scrollbar">
           {Object.values(notifications).map(({ sender, latestMessage, count }) => (
             <div
               key={sender._id}
-              className="flex items-center gap-3 p-2 border-b border-gray-600"
+              className="flex items-center gap-3 p-3 border-b border-gray-600 hover:bg-gray-800/50 transition-all duration-200 rounded-lg"
             >
               <img
                 src={sender.profilePicture || "../assets/productImg.jpg"}
                 alt="Profile"
-                className="w-8 h-8 rounded-full"
+                className="w-10 h-10 rounded-full border-2 border-cyan-400 shadow-md"
               />
               <div className="flex-1">
-                <strong>{sender.username}</strong>
+                <strong className="text-cyan-300">{sender.username}</strong>
                 <p className="text-sm text-gray-300">
-                  {latestMessage} ({count} messages)
+                  {latestMessage} <span className="text-cyan-400">({count} new)</span>
                 </p>
               </div>
             </div>
@@ -119,7 +114,7 @@ const NotificationDropdown = ({ sendData }) => {
       )}
       {count > 0 && (
         <button
-          className="text-sm text-blue-400 mt-2 w-full"
+          className="text-sm text-cyan-300 mt-3 w-full py-2 bg-gray-800/50 border border-cyan-500 rounded-lg transition-all hover:bg-cyan-500/30 hover:text-white shadow-md hover:shadow-cyan-500"
           onClick={markAsRead}
         >
           Mark all as Read
