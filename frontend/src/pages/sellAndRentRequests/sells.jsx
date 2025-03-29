@@ -11,7 +11,6 @@ export default function AllSells() {
           credentials: "include",
         });
         const data = await response.json();
-        console.log("data"+data.data.products); 
         if (data.status === "success") {
           setProducts(data.data.products);
         } else {
@@ -30,39 +29,52 @@ export default function AllSells() {
   };
 
   return (
-    <div className="pl-10 px-4 py-6">
-      <h1 className="text-3xl font-bold text-center mb-6">All Sells</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    <div className="min-h-screen p-10 bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+      <h1 className="text-4xl font-extrabold text-center text-cyan-400 mb-8 tracking-wider">
+        🛒 All Sells
+      </h1>
+
+      {/* Grid Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
         {products.slice(0, visibleProducts).map((product) => (
           <div
             key={product._id}
-            className="border p-4 rounded-lg shadow-md hover:shadow-lg transition"
+            className="relative group bg-white/10 backdrop-blur-lg border border-gray-700 shadow-lg rounded-xl p-4 transition-transform hover:scale-105"
           >
-            <img
-              src={product.productImage}
-              alt={product.productName}
-              className="w-full h-40 object-cover rounded-md"
-            />
-            <h2 className="text-lg font-semibold mt-2">{product.productName}</h2>
-            <p className="text-gray-600">Items Available: {product.noOfItems}</p>
-            <p className="text-gray-800 font-medium">Seller: {product.sellerId.username}</p>
+            {/* Image */}
+            <div className="relative w-full h-48 rounded-lg overflow-hidden">
+              <img
+                src={product.productImage}
+                alt={product.productName}
+                className="w-full h-full object-cover transition-transform group-hover:scale-110"
+              />
+            </div>
+
+            {/* Product Info */}
+            <h2 className="mt-4 text-xl font-bold text-cyan-300">{product.productName}</h2>
+            <p className="text-gray-400">🛍️ Items Available: {product.noOfItems}</p>
+            <p className="text-gray-300 font-semibold mt-1">👤 Seller: {product.sellerId?.username}</p>
+
+            {/* Seller Details */}
             {product.sellerId && (
-              <div className="mt-2 text-gray-700">
-                <p>Contact: {product.sellerId.contactNumber}</p>
-                <p>Hostel: {product.sellerId.hostelName}</p>
-                <p>Room: {product.sellerId.roomNumber}</p>
+              <div className="mt-3 bg-gray-900/50 p-3 rounded-lg text-sm text-gray-300">
+                <p>📞 Contact: {product.sellerId.contactNumber}</p>
+                <p>🏢 Hostel: {product.sellerId.hostelName}</p>
+                <p>🚪 Room: {product.sellerId.roomNumber}</p>
               </div>
             )}
           </div>
         ))}
       </div>
+
+      {/* Load More Button */}
       {visibleProducts < products.length && (
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center mt-12">
           <button
             onClick={loadMoreProducts}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 text-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full shadow-lg hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105"
           >
-            Load More
+            Load More 🔄
           </button>
         </div>
       )}
