@@ -13,6 +13,9 @@ import { ProductsDataProvider } from "./store/productDataStore.jsx";
 import { UserDataProvider } from "./store/userDataStore.jsx";
 import AllSells from "./pages/sellAndRentRequests/sells.jsx"
 import AllRequests from "./pages/sellAndRentRequests/rentRequests.jsx";
+import  ContactPage  from "./components/Contact.jsx";
+import ServicesPage from "./components/Services.jsx";
+import AboutPage from "./components/About.jsx";
 // Layout for Dashboard Pages
 const DashboardLayout = ({ children }) => {
   return (
@@ -143,6 +146,40 @@ function App() {
         <Route
           path="/chat"
           element={<ChatPage/>} // Fixed incorrect usage of currentUser
+        />
+
+<Route
+          path="/contact"
+          element={
+            
+             <DashboardLayout>
+              <ContactPage/>
+            </DashboardLayout>
+           
+            
+          }
+        />
+        <Route
+          path="/services"
+          element={
+            
+             <DashboardLayout>
+              <ServicesPage/>
+            </DashboardLayout>
+           
+            
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            
+             <DashboardLayout>
+              <AboutPage/>
+            </DashboardLayout>
+           
+            
+          }
         />
       </Routes>
     </Router>
