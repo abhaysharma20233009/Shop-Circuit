@@ -35,14 +35,14 @@ export default function LoginPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Login failed");
 
-      toast.success("Login successful! Redirecting...", {
+      toast.success("🎉 Login successful! Redirecting...", {
         position: "top-right",
         autoClose: 3000,
       });
 
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err) {
-      toast.error(err.message, {
+      toast.error(`❌ ${err.message}`, {
         position: "top-right",
         autoClose: 4000,
       });
@@ -71,8 +71,24 @@ export default function LoginPage() {
         <h2 className="text-3xl font-extrabold text-center text-purple-400">🔐 Login</h2>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <input type="email" name="email" placeholder="Email" onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-purple-500 focus:ring-2 focus:ring-purple-300" required />
-          <input type="password" name="password" placeholder="Password" onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-purple-500 focus:ring-2 focus:ring-purple-300" required />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 text-white rounded-lg border border-purple-500 focus:ring-2 focus:ring-purple-300"
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full p-3 bg-gray-800 text-white rounded-lg border border-purple-500 focus:ring-2 focus:ring-purple-300"
+            required
+          />
           
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -82,7 +98,12 @@ export default function LoginPage() {
             disabled={loading}
           >
             {loading ? (
-              <Player src={loadingAnimation} className="w-10 h-10" autoplay loop />
+              <Player
+                src={loadingAnimation}
+                className="w-10 h-10"
+                autoplay
+                loop
+              />
             ) : (
               "🚀 Login"
             )}

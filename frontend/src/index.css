@@ -1,4 +1,11 @@
 @import "tailwindcss";
-.input-style {
+/* .input-style {
   @apply w-full p-3 bg-white/20 border border-gray-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-300 transition-all;
+} */
+
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
 }
+

@@ -386,7 +386,7 @@ const ChatBox = ({ chatUser }) => {
             {showOptions === index && (
               <div
                 id={`message-options-${index}`}
-                className="absolute top-6 right-1 mt-1 w-24 pt-1 pb-1 bg-white rounded rounded-sm shadow-md z-50 text-gray-600"
+                className="absolute top-6 right-1 mt-1 w-24 pt-1 pb-1 bg-white rounded-sm shadow-md z-50 text-gray-600"
               >
                 {message.sender === recipientId ? (
                   <>

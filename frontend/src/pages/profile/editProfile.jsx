@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaPlus } from "react-icons/fa"; // Import Plus Icon
+import { FaPlus } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function EditUserProfile() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState({
     username: location.state?.user?.username || "",
     email: location.state?.user?.email || "",
@@ -28,7 +30,7 @@ export default function EditUserProfile() {
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) {
-      alert("Please select a file to upload.");
+      toast.warn("Please select a file to upload.");
       return;
     }
 
@@ -36,6 +38,7 @@ export default function EditUserProfile() {
     formData.append("profileImage", file);
 
     try {
+      setLoading(true);
       const response = await fetch(
         "http://localhost:3000/api/v1/users/upload-profile-photo",
         {
@@ -50,7 +53,7 @@ export default function EditUserProfile() {
       }
 
       const data = await response.json();
-      alert("Profile picture uploaded successfully!");
+      toast.success("Profile picture uploaded successfully!");
 
       setEditedUser((prev) => ({
         ...prev,
@@ -58,12 +61,14 @@ export default function EditUserProfile() {
       }));
     } catch (error) {
       console.error("Upload error:", error.message);
-      alert("Error uploading profile picture.");
+      toast.error("Error uploading profile picture.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSave = async () => {
-    setUser(editedUser);
+    setLoading(true);
     try {
       const response = await fetch(
         "http://localhost:3000/api/v1/users/updateMe",
@@ -76,19 +81,22 @@ export default function EditUserProfile() {
       );
 
       if (response.ok) {
-        navigate("/me");
+        toast.success("Profile updated successfully!");
+        setTimeout(() => navigate("/me"), 1000);
       } else {
-        console.error("Failed to save profile");
+        toast.error("Failed to save profile.");
       }
     } catch (error) {
+      toast.error("Something went wrong!");
       console.log("Error:", error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col items-center p-8 bg-black min-h-screen text-white">
       <div className="w-full max-w-lg p-6 bg-white/10 backdrop-blur-md border border-gray-600 shadow-lg rounded-3xl relative">
-        
         {/* Profile Picture Upload */}
         <div className="relative flex flex-col items-center">
           <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-cyan-400 shadow-lg relative group">
@@ -97,7 +105,7 @@ export default function EditUserProfile() {
               alt="Profile"
               className="w-full h-full object-cover"
             />
-            
+
             {/* Plus Icon Overlay */}
             <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer">
               <FaPlus className="text-white text-2xl" />
@@ -188,9 +196,10 @@ export default function EditUserProfile() {
         {/* Save Button */}
         <button
           onClick={handleSave}
-          className="mt-6 w-full py-3 text-lg bg-cyan-500 text-black font-semibold rounded-lg hover:bg-cyan-600 transition-shadow shadow-md hover:shadow-cyan-500/50"
+          disabled={loading}
+          className="mt-6 w-full py-3 text-lg bg-cyan-500 text-black font-semibold rounded-lg hover:bg-cyan-600 transition-shadow shadow-md hover:shadow-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          💾 Save Profile
+          {loading ? "Saving..." : "💾 Save Profile"}
         </button>
       </div>
     </div>

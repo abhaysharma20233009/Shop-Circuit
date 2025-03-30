@@ -45,7 +45,7 @@ const Chatlist = ({ onSelectChat }) => {
   );
 
   return (
-    <div className="border pt-3 chat-list-main h-screen w-full">
+    <div className="border pt-3 chat-list-main h-screen w-full"> 
       {/* Search Bar */}
       <div className="mb-2">
         <div className="chat-list-search-bar rounded-md w-full md:w-115 mx-4 px-4 py-2 flex items-center gap-5 transition">

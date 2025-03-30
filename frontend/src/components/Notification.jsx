@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-
+import { useNavigate } from "react-router-dom";
 const socket = io("http://localhost:3000", {
   withCredentials: true,
   path: "/socket.io",
 });
 
 const NotificationDropdown = ({ sendData }) => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState({});
   const [count, setCount] = useState(0);
 
@@ -82,9 +83,13 @@ const NotificationDropdown = ({ sendData }) => {
   useEffect(() => {
     sendData(count);
   }, [count, sendData]);
-
+  const handleClick=(id)=>()=>{
+    if (id) {
+      navigate(`/chat`, { state: { id} }); // Redirects to chat
+    }
+  }
   return (
-    <div className="absolute z-50 right-0 mt-48 w-80 bg-gray-900/80 backdrop-blur-2xl border border-cyan-500 shadow-xl rounded-2xl p-4 bell-dropdown transition-all duration-300 ease-in-out hover:shadow-cyan-500/50">
+    <div className="absolute z-50 right-0 mt-6 w-80 bg-gray-900/80 backdrop-blur-2xl border border-cyan-500 shadow-xl rounded-2xl p-4 bell-dropdown transition-all duration-300 ease-in-out hover:shadow-cyan-500/50">
       <h3 className="text-lg font-semibold text-cyan-300 flex justify-between items-center">
         Notifications <span className="text-cyan-400">({count})</span>
       </h3>
@@ -103,11 +108,12 @@ const NotificationDropdown = ({ sendData }) => {
                 className="w-10 h-10 rounded-full border-2 border-cyan-400 shadow-md"
               />
               <div className="flex-1">
-                <strong className="text-cyan-300">{sender.username}</strong>
+                <strong className="text-cyan-300"  onClick={handleClick(sender._id)}>{sender.username}</strong>
                 <p className="text-sm text-gray-300">
                   {latestMessage} <span className="text-cyan-400">({count} new)</span>
                 </p>
               </div>
+             
             </div>
           ))}
         </div>

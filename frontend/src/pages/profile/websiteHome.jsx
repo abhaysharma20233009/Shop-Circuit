@@ -2,13 +2,17 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProductData } from "../../store/productDataStore";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import LoadingPage from "../../components/Loading";
 
 export default function HomePage() {
   const { products, loading } = useProductData();
   const navigate = useNavigate();
 
+  console.log("Loading State:", loading); // Debugging log
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#03001e] via-[#7303c0] to-[#4b0839] text-white flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#03001e] via-[#7303c0] to-[#1b0314] text-white flex flex-col items-center">
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: -50 }} 
@@ -44,9 +48,13 @@ export default function HomePage() {
       {/* Product Listings */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-8 mt-10 w-full max-w-7xl">
         {loading ? (
-          <p className="text-center text-lg text-gray-300">Loading products...</p>
+          <LoadingPage />
         ) : (
-          products.map((product) => <ProductCard key={product.id} product={product} />)
+          products.length > 0 ? (
+            products.map((product) => <ProductCard key={product.id} product={product} />)
+          ) : (
+            <p className="text-gray-300 text-center col-span-full">No products available.</p>
+          )
         )}
       </div>
     </div>
@@ -63,7 +71,7 @@ const ProductCard = ({ product }) => (
   >
     <img
       src={product.productImage}
-      alt={product.name}
+      alt={product.productName}
       className="w-full h-40 object-cover rounded-md"
     />
     <h3 className="text-xl font-semibold mt-3 text-purple-300">{product.productName}</h3>
