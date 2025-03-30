@@ -11,178 +11,158 @@ import ProductList from "./pages/Home/ProductList.jsx";
 import Footer from "./components/Footer.jsx";
 import { ProductsDataProvider } from "./store/productDataStore.jsx";
 import { UserDataProvider } from "./store/userDataStore.jsx";
-import AllSells from "./pages/sellAndRentRequests/sells.jsx"
+import AllSells from "./pages/sellAndRentRequests/sells.jsx";
 import AllRequests from "./pages/sellAndRentRequests/rentRequests.jsx";
-import  ContactPage  from "./components/Contact.jsx";
+import ContactPage from "./components/Contact.jsx";
 import ServicesPage from "./components/Services.jsx";
 import AboutPage from "./components/About.jsx";
-// Layout for Dashboard Pages
-const DashboardLayout = ({ children }) => {
-  return (
-    <> {/* Wrap entire DashboardLayout with Provider */}
-   
+import { ToastContainer } from "react-toastify";
+
+//  Dashboard Layout
+const DashboardLayout = ({ children }) => (
+  <>
     <Navbar />
-    
-     
-      {children}
-      <Footer />
-    </>
-  );
-};
+    {children}
+    <Footer />
+  </>
+);
 
-// Other Layouts remain the same
-const ProfileLayout = ({ children }) => {
-  return (
-    <>
-      <Navbar />
-      {children}
-      <Footer />
-    </>
-  );
-};
+//  Profile Layout
+const ProfileLayout = ({ children }) => (
+  <>
+    <Navbar />
+    {children}
+    <Footer />
+  </>
+);
 
-const AuthLayout = ({ children }) => {
-  return <>{children}</>;
-};
+//  Authentication Layout (No Navbar/Footer)
+const AuthLayout = ({ children }) => <>{children}</>;
 
-const MainLayout = ({ children }) => {
-  return (
-    <>
-      {children}
-      <Footer />
-    </>
-  );
-};
+//  Main Layout
+const MainLayout = ({ children }) => (
+  <>
+    {children}
+    <Footer />
+  </>
+);
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Dashboard Route */}
-       
-        <Route
-          path="/dashboard"
-          element={
-            
-             <DashboardLayout>
-              <ProductList />
-            </DashboardLayout>
-          
-            
-          }
-        />
-         <Route
-          path="/sells"
-          element={
-            
-             <DashboardLayout>
-              <AllSells />
-            </DashboardLayout>
-           
-            
-          }
-        />
-         <Route
-          path="/rents"
-          element={
-            
-             <DashboardLayout>
-              <AllRequests />
-            </DashboardLayout>
-           
-            
-          }
-        />
+    <UserDataProvider>
+      <ProductsDataProvider>
+        <Router>
+          <ToastContainer position="top-right" autoClose={2000} />
+          <Routes>
+            {/*  Home */}
+            <Route
+              path="/"
+              element={
+                <MainLayout>
+                  <HomePage />
+                </MainLayout>
+              }
+            />
 
-        {/* Profile Routes */}
-        <Route
-          path="/me"
-          element={
-            <ProfileLayout>
-              <UserDataProvider>
-              <UserProfile />
-              </UserDataProvider>
-            </ProfileLayout>
-          }
-        />
-        <Route
-          path="/editProfile"
-          element={
-            <ProfileLayout>
-              <EditUserProfile />
-            </ProfileLayout>
-          }
-        />
+            {/* Dashboard Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <DashboardLayout>
+                  <ProductList />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/sells"
+              element={
+                <DashboardLayout>
+                  <AllSells />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/rents"
+              element={
+                <DashboardLayout>
+                  <AllRequests />
+                </DashboardLayout>
+              }
+            />
 
-        {/* Authentication Routes */}
-        <Route
-          path="/signup"
-          element={
-            <AuthLayout>
-              <SignupPage />
-            </AuthLayout>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <AuthLayout>
-              <LoginPage />
-            </AuthLayout>
-          }
-        />
+            {/*  Profile Routes */}
+            <Route
+              path="/me"
+              element={
+                <ProfileLayout>
+                  <UserProfile />
+                </ProfileLayout>
+              }
+            />
+            <Route
+              path="/editProfile"
+              element={
+                <ProfileLayout>
+                  <EditUserProfile />
+                </ProfileLayout>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ProfileLayout>
+                  <ChatPage />
+                </ProfileLayout>
+              }
+            />
 
-        {/* Main Route */}
-        <Route
-          path="/"
-          element={
-            <MainLayout>
-              <ProductsDataProvider>
-                <HomePage />
-              </ProductsDataProvider>
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/chat"
-          element={<ChatPage/>} // Fixed incorrect usage of currentUser
-        />
+            {/*  Authentication Routes */}
+            <Route
+              path="/signup"
+              element={
+                <AuthLayout>
+                  <SignupPage />
+                </AuthLayout>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <AuthLayout>
+                  <LoginPage />
+                </AuthLayout>
+              }
+            />
 
-<Route
-          path="/contact"
-          element={
-            
-             <DashboardLayout>
-              <ContactPage/>
-            </DashboardLayout>
-           
-            
-          }
-        />
-        <Route
-          path="/services"
-          element={
-            
-             <DashboardLayout>
-              <ServicesPage/>
-            </DashboardLayout>
-           
-            
-          }
-        />
-        <Route
-          path="/about"
-          element={
-            
-             <DashboardLayout>
-              <AboutPage/>
-            </DashboardLayout>
-           
-            
-          }
-        />
-      </Routes>
-    </Router>
+            {/* ℹInfo Pages */}
+            <Route
+              path="/contact"
+              element={
+                <DashboardLayout>
+                  <ContactPage />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/services"
+              element={
+                <DashboardLayout>
+                  <ServicesPage />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <DashboardLayout>
+                  <AboutPage />
+                </DashboardLayout>
+              }
+            />
+          </Routes>
+        </Router>
+      </ProductsDataProvider>
+    </UserDataProvider>
   );
 }
 
