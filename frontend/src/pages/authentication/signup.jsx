@@ -20,16 +20,29 @@ export default function SignupPage() {
     roomNumber: "",
     contactNumber: "",
   });
-
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+      ...(name === "role" &&
+        (value === "student"
+          ? { shopName: "", shopAddress: "" }
+          : { hostelName: "", roomNumber: "" })),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (formData.password !== formData.passwordConfirm) {
+      toast.error("Passwords do not match!", { position: "top-right", autoClose: 4000 });
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch("http://localhost:3000/api/v1/users/signup", {
@@ -41,14 +54,14 @@ export default function SignupPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Signup failed");
 
-      toast.success("Signup successful! Redirecting...", {
+      toast.success("🎉 Signup successful! Redirecting...", {
         position: "top-right",
         autoClose: 3000,
       });
 
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err) {
-      toast.error(err.message, {
+      toast.error(`❌ ${err.message}`, {
         position: "top-right",
         autoClose: 4000,
       });
@@ -65,7 +78,7 @@ export default function SignupPage() {
         transition={{ duration: 1.5 }}
         className="absolute inset-0 bg-gradient-to-br from-purple-800 to-black opacity-70"
       />
-      
+
       {/* Signup Card */}
       <motion.div
         initial={{ y: 50, opacity: 0 }}
@@ -77,33 +90,33 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <input type="text" name="username" placeholder="Username" onChange={handleChange} className="input-field" required />
-            <input type="email" name="email" placeholder="Email" onChange={handleChange} className="input-field" required />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <input type="password" name="password" placeholder="Password" onChange={handleChange} className="input-field" required />
-            <input type="password" name="passwordConfirm" placeholder="Confirm Password" onChange={handleChange} className="input-field" required />
+            <input type="text" name="username" value={formData.username} onChange={handleChange} placeholder="Username" className="input-field" required />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="input-field" required />
           </div>
 
-          <select name="role" onChange={handleChange} className="input-field">
+          <div className="grid grid-cols-2 gap-4">
+            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" className="input-field" required />
+            <input type="password" name="passwordConfirm" value={formData.passwordConfirm} onChange={handleChange} placeholder="Confirm Password" className="input-field" required />
+          </div>
+
+          <select name="role" value={formData.role} onChange={handleChange} className="input-field">
             <option value="student" className="bg-purple-800">Student</option>
             <option value="shopkeeper" className="bg-gray-800">Shopkeeper</option>
           </select>
 
           {formData.role === "shopkeeper" ? (
             <>
-              <input type="text" name="shopName" placeholder="Shop Name" onChange={handleChange} className="input-field" required />
-              <input type="text" name="shopAddress" placeholder="Shop Address" onChange={handleChange} className="input-field" required />
+              <input type="text" name="shopName" value={formData.shopName} onChange={handleChange} placeholder="Shop Name" className="input-field" required />
+              <input type="text" name="shopAddress" value={formData.shopAddress} onChange={handleChange} placeholder="Shop Address" className="input-field" required />
             </>
           ) : (
             <>
-              <input type="text" name="hostelName" placeholder="Hostel Name" onChange={handleChange} className="input-field" required />
-              <input type="text" name="roomNumber" placeholder="Room Number" onChange={handleChange} className="input-field" required />
+              <input type="text" name="hostelName" value={formData.hostelName} onChange={handleChange} placeholder="Hostel Name" className="input-field" required />
+              <input type="text" name="roomNumber" value={formData.roomNumber} onChange={handleChange} placeholder="Room Number" className="input-field" required />
             </>
           )}
 
-          <input type="text" name="contactNumber" placeholder="Contact Number" onChange={handleChange} className="input-field" required />
+          <input type="text" name="contactNumber" value={formData.contactNumber} onChange={handleChange} placeholder="Contact Number" className="input-field" required />
 
           <motion.button
             whileHover={{ scale: 1.05 }}
