@@ -47,10 +47,13 @@ export default function LoginPage() {
         theme: "dark", // Use dark theme for toast to match UI
       });
 
-      // Store token or user data if necessary (example)
-      // localStorage.setItem('authToken', data.token);
 
-      setTimeout(() => navigate("/dashboard"), 1500); // Slightly faster redirect
+      if (data.role === "admin") {
+        setTimeout(() => navigate("/admin-dashboard"), 2000);
+      } else {
+        setTimeout(() => navigate("/dashboard"), 2000);
+      }
+
     } catch (err) {
       toast.error(`❌ ${err.message}`, {
         position: "top-right",
@@ -85,6 +88,7 @@ export default function LoginPage() {
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} // Smoother easing
         className="relative w-full max-w-md p-8 bg-gradient-to-br from-white/5 via-white/10 to-white/5 backdrop-blur-lg shadow-2xl shadow-purple-900/30 rounded-2xl border border-purple-400/30 z-10"
       >
+
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

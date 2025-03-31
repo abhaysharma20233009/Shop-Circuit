@@ -2,19 +2,17 @@ const { RequestedRent } = require("../models/requestedRentModel.js");
 const catchAsync = require("./../utils/catchAsync");
 const APIFeatures = require("./../utils/apiFeatures");
 const AppError = require("./../utils/appError");
+const Notification = require("../models/notificationModel.js");
+
 // Create a new rent request
 exports.createRentRequest = async (req, res) => {
-  console.log("bodyyyy " + req.body.itemName); // Fixed syntax
-  console.log(req.user);
   try {
     const studentId = req.user ? req.user._id : req.body.studentId; // Use user ID if available
-    console.log("studentId " + studentId);
 
     const rentRequest = await RequestedRent.create({
       ...req.body,
       studentId: studentId, // Assign correct student ID
     });
-    console.log("rentreq" + rentRequest);
     res.status(201).json({ status: "success", data: rentRequest });
   } catch (error) {
     res.status(400).json({ status: "fail", message: error.message });
@@ -27,7 +25,6 @@ exports.getUserRentRequests = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
 
   const rentRequests = await RequestedRent.find({ studentId: userId });
-  console.log(rentRequests);
   res.status(200).json({ status: "success", data: rentRequests });
 });
 
@@ -45,9 +42,7 @@ exports.getAllPendingRequests = catchAsync(async (req, res, next) => {
 exports.markFulfilledRentRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
-    console.log(requestId);
     const rentRequest = await RequestedRent.findById(requestId);
-    console.log();
     if (!rentRequest) {
       return res.status(404).json({ message: "Rent request not found" });
     }
@@ -62,7 +57,6 @@ exports.markFulfilledRentRequest = async (req, res) => {
       .json({ message: "Error marking fulfilled the requested rent", error });
   }
 };
-
 
 exports.updateRentRequest=catchAsync(async (req,res,next) => {
   const doc = await   RequestedRent.findByIdAndUpdate(req.params.id, req.body, {
@@ -97,3 +91,59 @@ exports.deleteRentRequest=catchAsync(async (req,res,next) => {
     },
   });
 })
+exports.getAllPendingRequestsForAdmin = catchAsync(async (req, res, next) => {
+  const rentRequests = await RequestedRent.find({ status: "pending" }) // Filter only pending requests
+    .populate(
+      "studentId",
+      "username email hostelName roomNumber contactNumber profilePicture"
+    );
+
+  res.status(200).json({
+    status: "success",
+    results: rentRequests.length,
+    data: rentRequests,
+  });
+});
+
+exports.deletePendingRequestAsAdmin = catchAsync(async (req, res, next) => {
+  const { id } = req.params; // Extract rent request ID from URL params
+
+  const deletedRequest = await RequestedRent.findByIdAndDelete(id);
+
+  if (!deletedRequest) {
+    return res.status(404).json({
+      status: "fail",
+      message: "Requested rent not found",
+    });
+  }
+
+  // Create notification
+  const recipientId = deletedRequest.studentId;
+  const senderId = req.user._id;
+  const content = `Your product ${deletedRequest.itemName} is deleted by admin`;
+  const newNotification = new Notification({
+    receiver: recipientId,
+    sender: senderId,
+    messagePreview: content,
+    isRead: false,
+  });
+  await newNotification.save();
+  try {
+    if (io) {
+      io.to(`${recipientId}`).emit("newMessageNotification", {
+        sender: senderId,
+        messagePreview: content,
+        timestamp: Date.now(),
+      });
+    } else {
+      console.error("Socket.io is not initialized.");
+    }
+  } catch (error) {
+    console.error("Error saving notification:", error);
+  }
+  res.status(200).json({
+    status: "success",
+    message: "Requested rent deleted successfully",
+    data: deletedRequest,
+  });
+});

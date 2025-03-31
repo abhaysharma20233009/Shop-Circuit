@@ -5,7 +5,7 @@ const AppError = require("./../utils/appError");
 const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 const fs = require("fs");
-
+const Notification = require("../models/notificationModel");
 exports.createProduct = async (req, res) => {
   try {
     const { productName, price, noOfItems, description, sellerType, category } =
@@ -50,6 +50,9 @@ exports.createProduct = async (req, res) => {
   }
 };
 
+
+
+
 exports.updateProduct = catchAsync(async (req, res, next) => {
   const doc = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -66,7 +69,7 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
       product: doc,
     },
   });
-});
+})
 
 exports.getAllShopProducts = catchAsync(async (req, res, next) => {
   try {
@@ -212,3 +215,58 @@ exports.deleteSell=catchAsync(async (req,res,next) => {
     },
   });
 })
+exports.getAllProductsForAdmin = catchAsync(async (req, res, next) => {
+  try {
+    const products = await Product.find();
+
+    res.status(200).json({
+      status: "success",
+      results: products.length,
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+exports.deleteProductAsAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedProduct = await Product.findByIdAndDelete(id);
+    console.log(deletedProduct);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Create notification
+    const recipientId = deletedProduct.sellerId;
+    const senderId = req.user._id;
+    const content = `Your product ${deletedProduct.productName} is deleted by admin`;
+    
+    const newNotification = new Notification({
+      receiver: recipientId,
+      sender: senderId,
+      messagePreview: content,
+      isRead: false,
+    });
+    await newNotification.save();
+    try {
+      if (io) {
+        io.to(`${recipientId}`).emit("newMessageNotification", {
+          sender: senderId,
+          messagePreview: content,
+          timestamp: Date.now(),
+        });
+      } else {
+        console.error("Socket.io is not initialized.");
+      }
+    } catch (error) {
+      console.error("Error saving notification:", error);
+    }
+
+    res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
