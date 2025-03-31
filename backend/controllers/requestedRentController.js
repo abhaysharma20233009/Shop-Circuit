@@ -62,3 +62,38 @@ exports.markFulfilledRentRequest = async (req, res) => {
       .json({ message: "Error marking fulfilled the requested rent", error });
   }
 };
+
+
+exports.updateRentRequest=catchAsync(async (req,res,next) => {
+  const doc = await   RequestedRent.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  }).exec();
+
+  if (!doc) {
+    return next(new AppError("No Rent Request found with that ID", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      product: doc,
+    },
+  });
+})
+exports.deleteRentRequest=catchAsync(async (req,res,next) => {
+  console.log("req.params"+req.params.id);
+ const doc=await RequestedRent.findByIdAndDelete(req.params.id);
+ console.log(doc);
+
+  if (!doc) {
+    return next(new AppError("No Rent Request found with that ID", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      product: doc,
+    },
+  });
+})
