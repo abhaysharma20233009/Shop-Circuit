@@ -44,7 +44,7 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-    console.log(req.body);
+  
     const newUser = await User.create({
         username: req.body.username,
         email: req.body.email,
@@ -134,8 +134,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) get user based on POSTED email
+  
   const user = await User.findOne({ email: req.body.email });
-
+  
+ 
   if (!user) {
     return next(new AppError('There is no user with email address.', 404));
   }
