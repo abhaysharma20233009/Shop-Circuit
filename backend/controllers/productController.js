@@ -50,48 +50,25 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// exports.updateProduct = catchAsync(async (req, res, next) => {
-//   const doc = await Product.findByIdAndUpdate(req.params.id, req.body, {
-//     new: true,
-//     runValidators: true,
-//   }).exec();
+exports.updateProduct = catchAsync(async (req, res, next) => {
+  const doc = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  }).exec();
 
-//   if (!doc) {
-//     return next(new AppError("No product found with that ID", 404));
-//   }
+  if (!doc) {
+    return next(new AppError("No product found with that ID", 404));
+  }
 
-//   res.status(200).json({
-//     status: "success",
-//     data: {
-//       product: doc,
-//     },
-//   });
-// });
+  res.status(200).json({
+    status: "success",
+    data: {
+      product: doc,
+    },
+  });
+});
 
-// exports.getProduct = catchAsync(async (req, res, next) => {
-//   const product = await Product.findById(req.params.id).populate(
-//     "sellerId",
-//     "shopName shopAddress hostelName roomNumber sellerType"
-//   );
-
-//   if (!product) {
-//     return next(new AppError("No product found with that ID", 404));
-//   }
-
-//   const seller = product.sellerId;
-//   const sellerDetails = seller.sellerType === "shopkeeper"
-//     ? { shopName: seller.shopName, shopAddress: seller.shopAddress }
-//     : { hostelName: seller.hostelName, roomNumber: seller.roomNumber };
-
-//   res.status(200).json({
-//     status: "success",
-//     data: {
-//       product,
-//       sellerDetails,
-//     },
-//   });
-// });
-exports.getAllProducts = catchAsync(async (req, res, next) => {
+exports.getAllShopProducts = catchAsync(async (req, res, next) => {
   try {
     const products = await Product.find({ status: "pending" })
       .populate("sellerId", "shopName shopAddress contactNumber sellerType")
@@ -216,3 +193,22 @@ exports.getProductsByCategory = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+
+
+exports.deleteSell=catchAsync(async (req,res,next) => {
+  console.log("req.params"+req.params.id);
+ const doc=await Product.findByIdAndDelete(req.params.id);
+ console.log(doc);
+
+  if (!doc) {
+    return next(new AppError("No Rent Request found with that ID", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      product: doc,
+    },
+  });
+})
