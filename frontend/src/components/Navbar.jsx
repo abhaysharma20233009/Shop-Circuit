@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { FaBars, FaTimes, FaBell } from "react-icons/fa";
-import defaulPic from '../assets/react.svg';
+import { FaBars, FaTimes, FaBell, FaSun, FaMoon } from "react-icons/fa";
+import { useTheme } from "../store/themeProvider"; // Import Theme Hook
 import { useNavigate } from "react-router-dom";
+import defaulPic from "../assets/react.svg";
 import NotificationDropdown from "./Notification";
 
 import { useData } from "../store/userDataStore"; // Adjust the import path as necessary 
@@ -13,6 +14,9 @@ export default function Navbar() {
   const [data, setData] = useState(0);
   const navigate = useNavigate();
   const { user, loading } = useData();
+
+  const { theme, toggleTheme } = useTheme(); // Get theme and toggle function
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   // Default user data when loading or not available
   const defaultUser = {
@@ -26,22 +30,18 @@ export default function Navbar() {
   const toggleNotificationBell = () => setIsBellOpen(!isBellOpen);
   const toggleProfileMenu = () => setIsProfileOpen(!isProfileOpen);
 
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isOpen && !event.target.closest(".sidebar")) {
-        setIsOpen(false);
-      }
-      if (isBellOpen && !event.target.closest(".bell-dropdown, .bell-icon")) {
-        setIsBellOpen(false);
-      }
-      if (isProfileOpen && !event.target.closest(".profile-menu, .profile-icon")) {
-        setIsProfileOpen(false);
-      }
+      if (isOpen && !event.target.closest(".sidebar")) setIsOpen(false);
+      if (isBellOpen && !event.target.closest(".bell-dropdown, .bell-icon")) setIsBellOpen(false);
+      if (isProfileOpen && !event.target.closest(".profile-menu, .profile-icon")) setIsProfileOpen(false);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, isBellOpen, isProfileOpen]);
+
 
   const handleDataFromChild = (childData) => {
     setData(childData);
@@ -106,29 +106,57 @@ export default function Navbar() {
                   🚪 Logout
                 </li>
               </ul>
+
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Sidebar */}
-      <div className={`z-20 fixed top-0 left-0 h-full w-64 bg-gray-800 text-white p-6 shadow-xl transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"} sidebar`}> 
-        <div className="flex justify-between items-center border-b pb-3 border-gray-600">
-          <button onClick={toggleSidebar} className="text-2xl text-red-400 hover:text-red-600 transition-transform transform hover:scale-110">
-            <FaTimes />
-          </button>
-        </div>
 
-        <ul className="mt-6 space-y-6 text-lg font-semibold">
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/dashboard')}>🏠 Home</li>
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/me')}>👤 Profile</li>
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/sells')}>🛒 Sells</li>
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/rents')}>🔄 Rents</li>
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/chat')}>📩 Chats</li>
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/about')}>📜 About</li>
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/services')}>⚙️ Services</li>
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/contact')}>📞 Contact</li>
-           {/* Settings Dropdown */}
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 transition"
+            >
+              {theme === "dark" ? <FaSun className="text-yellow-400" size={20} /> : <FaMoon className="text-gray-800" size={20} />}
+            </button>
+
+            {/* Profile Image */}
+            <div className="relative">
+              <img
+                src={user.profilePicture || defaulPic}
+                alt="Profile"
+                className="w-12 h-12 rounded-full border border-gray-600 hover:border-blue-500 transition cursor-pointer profile-icon"
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+              />
+              {isProfileOpen && (
+                <div className="absolute z-20 right-0 mt-2 w-48 bg-[var(--dropdown-bg)] text-[var(--text-color)] rounded-lg shadow-lg overflow-hidden profile-menu">
+                  <ul className="py-2">
+                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/me')}>👤 View Profile</li>
+                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/editProfile')}>✏️ Edit Profile</li>
+                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/sell-product')}>🛒 Sell Product</li>
+                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/request-rent')}>🔄 Request Rent</li>
+                    <li className="px-4 py-2 hover:bg-red-600 cursor-pointer" onClick={() => navigate('/logout')}>🚪 Logout</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className={`z-40 fixed top-0 left-0 h-full w-64 bg-[var(--sidebar-bg)] text-[var(--text-color)] p-6 shadow-xl transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"} sidebar`}> 
+            <div className="flex justify-between items-center border-b pb-3 border-gray-600">
+              <button onClick={() => setIsOpen(false)} className="text-2xl text-red-400 hover:text-red-600 transition-transform transform hover:scale-110">
+                <FaTimes />
+              </button>
+            </div>
+            <ul className="mt-6 space-y-6 text-lg font-semibold">
+              <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/dashboard')}>🏠 Home</li>
+              <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/me')}>👤 Profile</li>
+              <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/sells')}>🛒 Sells</li>
+              <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/rents')}>🔄 Rents</li>
+              <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={()=>navigate('/chat')}>📩 Chats</li>
+              <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/about')}>📜 About</li>
+              <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/services')}>⚙️ Services</li>
+              <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/contact')}>📞 Contact</li>
+                {/* Settings Dropdown */}
       <li
         className="relative cursor-pointer hover:text-blue-400 transition-transform transform hover:scale-110"
         onMouseEnter={() => setIsSettingsOpen(true)}
@@ -152,8 +180,11 @@ export default function Navbar() {
           </ul>
         )}
       </li>
-        </ul>
-      </div>
+            </ul>
+          </div>
+        </>
+      )}
+
     </div>
   );
 }

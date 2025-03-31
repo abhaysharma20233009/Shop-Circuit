@@ -18,9 +18,11 @@ import ContactPage from "./components/Contact.jsx";
 import ServicesPage from "./components/Services.jsx";
 import AboutPage from "./components/About.jsx";
 import { ToastContainer } from "react-toastify";
+
 import ForgotPassword from "./pages/account-setting/forgotPassword.jsx";
 import AccountSettings from "./pages/account-setting/account-setting.jsx";
 import ResetPassword from "./pages/account-setting/resetPassword.jsx";
+
 //  Dashboard Layout
 const DashboardLayout = ({ children }) => (
   <>
@@ -52,6 +54,7 @@ const MainLayout = ({ children }) => (
 
 function App() {
   return (
+    
     <UserDataProvider>
       <ProductsDataProvider>
         <Router>

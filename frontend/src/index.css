@@ -9,3 +9,30 @@
   }
 }
 
+/* Default Light Theme */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --sidebar-bg: #f3f3f3;
+  --dropdown-bg: #f9f9f9;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --bg-color: #1a1a2e;
+  --text-color: #ffffff;
+  --sidebar-bg: #07071f;
+  --dropdown-bg: #33334d;
+}
+
+
+/* Apply smooth transitions */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+
+
+
