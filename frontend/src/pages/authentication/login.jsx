@@ -40,7 +40,11 @@ export default function LoginPage() {
         autoClose: 3000,
       });
 
-      setTimeout(() => navigate("/dashboard"), 2000);
+      if (data.role === "admin") {
+        setTimeout(() => navigate("/admin-dashboard"), 2000);
+      } else {
+        setTimeout(() => navigate("/dashboard"), 2000);
+      }
     } catch (err) {
       toast.error(`❌ ${err.message}`, {
         position: "top-right",
@@ -68,7 +72,9 @@ export default function LoginPage() {
         transition={{ duration: 0.7, ease: "easeOut" }}
         className="relative w-full max-w-md p-8 bg-white/10 backdrop-blur-lg shadow-xl rounded-2xl border border-purple-400"
       >
-        <h2 className="text-3xl font-extrabold text-center text-purple-400">🔐 Login</h2>
+        <h2 className="text-3xl font-extrabold text-center text-purple-400">
+          🔐 Login
+        </h2>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <input
@@ -89,7 +95,7 @@ export default function LoginPage() {
             className="w-full p-3 bg-gray-800 text-white rounded-lg border border-purple-500 focus:ring-2 focus:ring-purple-300"
             required
           />
-          
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
