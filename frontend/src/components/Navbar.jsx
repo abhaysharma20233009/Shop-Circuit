@@ -3,28 +3,28 @@ import { FaBars, FaTimes, FaBell } from "react-icons/fa";
 import defaulPic from '../assets/react.svg';
 import { useNavigate } from "react-router-dom";
 import NotificationDropdown from "./Notification";
-import { useData } from "../store/userDataStore";// Adjust the import path as necessary 
+
+import { useData } from "../store/userDataStore"; // Adjust the import path as necessary 
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-
   const [isBellOpen, setIsBellOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false); // Profile dropdown state
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [data, setData] = useState(0);
   const navigate = useNavigate();
-  
+  const { user, loading } = useData();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // Default user data when loading or not available
+  const defaultUser = {
+    profilePicture: defaulPic,
+    name: "Guest",
+  };
 
-  
+  const displayUser = loading ? defaultUser : user || defaultUser;
 
   const toggleSidebar = () => setIsOpen(!isOpen);
-
   const toggleNotificationBell = () => setIsBellOpen(!isBellOpen);
   const toggleProfileMenu = () => setIsProfileOpen(!isProfileOpen);
-
-  const { user, loading } = useData();
-
-if (loading) return <p className="text-center text-gray-500">Loading...</p>;
-if (!user) return <p className="text-center text-red-500">Error loading user data</p>;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -46,7 +46,14 @@ if (!user) return <p className="text-center text-red-500">Error loading user dat
   const handleDataFromChild = (childData) => {
     setData(childData);
   };
-
+  const handleLogout=async ()=>{
+    const response =await  fetch(`http://localhost:3000/api/v1/users/logout`, {
+      credentials: "include", // Include cookies for authentication
+    });
+    if(response.ok){
+      navigate("/");
+    }
+  } 
   return (
     <div className="flex items-center justify-between p-2 bg-gray-900 text-white shadow-lg border-b border-gray-700">
       {/* Left Section - Sidebar Toggle & Logo */}
@@ -73,7 +80,7 @@ if (!user) return <p className="text-center text-red-500">Error loading user dat
         {/* Profile Image */}
         <div className="relative">
           <img
-            src={user.profilePicture || defaulPic}
+            src={displayUser.profilePicture}
             alt="Profile"
             className="w-12 h-12 rounded-full border border-gray-600 hover:border-blue-500 transition cursor-pointer profile-icon"
             onClick={toggleProfileMenu}
@@ -83,34 +90,19 @@ if (!user) return <p className="text-center text-red-500">Error loading user dat
           {isProfileOpen && (
             <div className="absolute z-20 right-0 mt-2 w-48 bg-gray-800 text-white rounded-lg shadow-lg overflow-hidden profile-menu">
               <ul className="py-2">
-                <li
-                  className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
-                  onClick={() => navigate('/me')}
-                >
-                  👤 View Profile
+                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/me')}>
+                  👤 {loading ? "Loading..." : "View Profile"}
                 </li>
-                <li
-                  className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
-                  onClick={() => navigate('/editProfile')}
-                >
+                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/editProfile',{ state: { user } })}>
                   ✏️ Edit Profile
                 </li>
-                <li
-                  className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
-                  onClick={() => navigate('/sell-product')}
-                >
+                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/sell-product')}>
                   🛒 Sell Product
                 </li>
-                <li
-                  className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
-                  onClick={() => navigate('/request-rent')}
-                >
+                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/request-rent')}>
                   🔄 Request Rent
                 </li>
-                <li
-                  className="px-4 py-2 hover:bg-red-600 cursor-pointer"
-                  onClick={() => navigate('/logout')}
-                >
+                <li className="px-4 py-2 hover:bg-red-600 cursor-pointer" onClick={() => handleLogout()}>
                   🚪 Logout
                 </li>
               </ul>
@@ -132,10 +124,34 @@ if (!user) return <p className="text-center text-red-500">Error loading user dat
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/me')}>👤 Profile</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/sells')}>🛒 Sells</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/rents')}>🔄 Rents</li>
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={()=>navigate('/chat')}>📩 Chats</li>
+          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/chat')}>📩 Chats</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/about')}>📜 About</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/services')}>⚙️ Services</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/contact')}>📞 Contact</li>
+           {/* Settings Dropdown */}
+      <li
+        className="relative cursor-pointer hover:text-blue-400 transition-transform transform hover:scale-110"
+        onMouseEnter={() => setIsSettingsOpen(true)}
+        onMouseLeave={() => setIsSettingsOpen(false)}
+      >
+        ⚙️ Settings
+        {isSettingsOpen && (
+          <ul className="absolute left-0  w-48 bg-gray-700  text-white rounded-lg shadow-lg overflow-hidden">
+            <li
+              className="px-2 border-b text-sm py-1 hover:bg-gray-900 cursor-pointer"
+              onClick={() => navigate("/account-settings")}
+            >
+              🔧 Account Settings
+            </li>
+            <li
+              className="px-4 py-2 text-sm hover:bg-gray-900 cursor-pointer"
+              onClick={() => navigate('/editProfile',{ state: { user } })}
+            >
+              ✏️ Edit Profile
+            </li>
+          </ul>
+        )}
+      </li>
         </ul>
       </div>
     </div>
