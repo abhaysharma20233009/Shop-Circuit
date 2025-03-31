@@ -2,19 +2,32 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { MessageCircle } from "lucide-react";
 import LoadingPage from "../../components/Loading";
 import RentRequestForm from "../../components/rentRequestForm";
-import { FaMoneyBillWave } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+
+import axios from "axios";
 
 export default function AllRequests() {
   const [products, setProducts] = useState([]);
   const [visibleProducts, setVisibleProducts] = useState(5);
+  const [ModifiedProducts, setModifiedProduct] = useState(products);
   const [loading, setLoading] = useState(true);
   const [isRentRequestModalOpen, setIsRentRequestModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Function to filter products (only based on search query)
+    const getFilteredProducts = () => {
+      if (searchQuery.trim() === "") {
+        return products; // Return all products if no search query
+      }
+      return products.filter((product) =>
+        product.productName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    };
+
     const fetchUserData = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/v1/rent/rent", {
@@ -41,6 +54,25 @@ export default function AllRequests() {
     setVisibleProducts((prev) => prev + 10);
   };
 
+  // Delete product
+  const handleDelete = async (id) => {
+    try {
+      const res = await axios({
+        url: `http://localhost:3000/api/v1/admin/rent/${id}`,
+        method: "DELETE",
+        withCredentials: true,
+      });
+
+      setModifiedProduct(
+        ModifiedProducts.filter((product) => product._id !== id)
+      );
+      toast.success("Product deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toast.error("Failed to delete product!");
+    }
+  };
+
   // ✅ Navigate to chat page
   const handleMessageClick = (studentId) => {
     if (studentId) {
@@ -54,17 +86,29 @@ export default function AllRequests() {
 
   return (
     <div className="min-h-screen p-10 bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
-      {/* Header with Button on the Right */}
-      <div className="flex items-center justify-between mb-10">
-        <h1 className="text-4xl font-extrabold text-purple-400 tracking-wide">
-          🚀 All Rent Requests 🚀
+      {/* Search Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between bg-gray-800 p-3 rounded-lg shadow-lg">
+        <h1 className="text-white text-xl font-bold mb-3 md:mb-0">
+          🔍 Search Rents
         </h1>
-        <button
-          className="flex items-center justify-center bg-purple-500 text-white font-medium px-6 py-3 rounded-lg hover:bg-purple-600 transition shadow-md"
-          onClick={() => setIsRentRequestModalOpen(true)}
-        >
-          <FaMoneyBillWave className="mr-2" /> Request Rent
-        </button>
+        <div className="relative w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search for rents..."
+            className="w-full p-2 pl-10 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-blue-400 outline-none transition-all"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-all">
+            <FaSearch />
+          </button>
+        </div>
+      </div>
+      {/* Header with Button on the Right */}
+      <div className="my-10">
+        <h1 className="text-4xl text-center font-extrabold text-purple-400 tracking-wide">
+          All Rent Requests
+        </h1>
       </div>
 
       {/* Grid Layout */}
@@ -74,19 +118,12 @@ export default function AllRequests() {
             key={product._id}
             className="relative group bg-white/10  border border-gray-700 shadow-lg rounded-xl p-5 transition-transform hover:scale-105 hover:border-purple-500"
           >
-            {/* Message Icon (Top Right) */}
-            {product.studentId && (
-              <button
-                onClick={() => handleMessageClick(product.studentId)}
-                className="absolute top-3 right-3  text-blue-400 hover:text-blue-500 transition-all"
-              >
-                <MessageCircle size={22} />
-                {/* Tooltip */}
-                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs font-semibold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Message
-                </span>
-              </button>
-            )}
+            <button
+              onClick={() => handleDelete(product._id)}
+              className="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-sm font-semibold rounded-lg hover:bg-red-400 transition transform hover:scale-105 shadow-md hover:shadow-gray-500/50"
+            >
+              Delete
+            </button>
 
             {/* Request Details */}
             <h2 className="text-xl font-bold text-purple-300">

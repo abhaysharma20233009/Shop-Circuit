@@ -2,7 +2,8 @@ const express = require('express');
 const authController=require('../controllers/authController.js')
 const { 
   createRentRequest, getUserRentRequests, markFulfilledRentRequest,getAllPendingRequests
-  
+  ,updateRentRequest,
+  deleteRentRequest
 } = require('../controllers/requestedRentController.js');
 //const { protect, restrictTo } = require('../middlewares/authMiddleware');
 
@@ -19,6 +20,7 @@ router.post('/rent',  createRentRequest);
 router.get('/',  getUserRentRequests);
 router.get('/rent',  getAllPendingRequests);
 router.put('/rent/:requestId', markFulfilledRentRequest);
-
+router.patch('/:id',updateRentRequest);
+router.delete('/:id',deleteRentRequest)
 
 module.exports = router;

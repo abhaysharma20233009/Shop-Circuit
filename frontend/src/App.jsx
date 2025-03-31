@@ -6,6 +6,7 @@ import SignupPage from "./pages/authentication/signup.jsx";
 import LoginPage from "./pages/authentication/login.jsx";
 import HomePage from "./pages/profile/websiteHome.jsx";
 import ChatPage from "./pages/chat/chatApp.jsx";
+import AdminDashboard from "./pages/adminPages/adminDashboard.jsx";
 import Navbar from "./components/Navbar.jsx";
 import ProductList from "./pages/Home/ProductList.jsx";
 import Footer from "./components/Footer.jsx";
@@ -18,6 +19,9 @@ import ServicesPage from "./components/Services.jsx";
 import AboutPage from "./components/About.jsx";
 import { ToastContainer } from "react-toastify";
 
+import ForgotPassword from "./pages/account-setting/forgotPassword.jsx";
+import AccountSettings from "./pages/account-setting/account-setting.jsx";
+import ResetPassword from "./pages/account-setting/resetPassword.jsx";
 
 //  Dashboard Layout
 const DashboardLayout = ({ children }) => (
@@ -109,6 +113,14 @@ function App() {
                 </ProfileLayout>
               }
             />
+             <Route
+              path="/account-settings"
+              element={
+                <ProfileLayout>
+                  <AccountSettings />
+                </ProfileLayout>
+              }
+            />
             <Route
               path="/chat"
               element={
@@ -117,7 +129,14 @@ function App() {
                 </ProfileLayout>
               }
             />
-
+            <Route
+              path="/admin-dashboard"
+              element={
+                <AuthLayout>
+                  <AdminDashboard />
+                </AuthLayout>
+              }
+            />
             {/*  Authentication Routes */}
             <Route
               path="/signup"
@@ -132,6 +151,23 @@ function App() {
               element={
                 <AuthLayout>
                   <LoginPage />
+                </AuthLayout>
+              }
+            />
+             <Route
+              path="/forgot-password"
+              element={
+                <AuthLayout>
+                  <ForgotPassword />
+                </AuthLayout>
+              }
+            />
+
+<Route
+              path="/resetPassword/:token"
+              element={
+                <AuthLayout>
+                  <ResetPassword />
                 </AuthLayout>
               }
             />
