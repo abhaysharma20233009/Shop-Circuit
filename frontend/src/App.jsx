@@ -6,6 +6,9 @@ import SignupPage from "./pages/authentication/signup.jsx";
 import LoginPage from "./pages/authentication/login.jsx";
 import HomePage from "./pages/profile/websiteHome.jsx";
 import ChatPage from "./pages/chat/chatApp.jsx";
+import ProductPageForAdmin from "./pages/adminPages/allProducts.jsx";
+import RentPageForAdmin from "./pages/adminPages/allRents.jsx";
+import AdminDashboard from "./pages/adminPages/adminDashboard.jsx";
 import Navbar from "./components/Navbar.jsx";
 import ProductList from "./pages/Home/ProductList.jsx";
 import Footer from "./components/Footer.jsx";
@@ -115,7 +118,30 @@ function App() {
                 </ProfileLayout>
               }
             />
-
+            <Route
+              path="/allProducts"
+              element={
+                <ProfileLayout>
+                  <ProductPageForAdmin />
+                </ProfileLayout>
+              }
+            />
+            <Route
+              path="/allRents"
+              element={
+                <ProfileLayout>
+                  <RentPageForAdmin />
+                </ProfileLayout>
+              }
+            />
+            <Route
+              path="/admin-dashboard"
+              element={
+                <AuthLayout>
+                  <AdminDashboard />
+                </AuthLayout>
+              }
+            />
             {/*  Authentication Routes */}
             <Route
               path="/signup"

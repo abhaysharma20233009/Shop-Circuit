@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MessageCircle } from "lucide-react";
 import LoadingPage from "../../components/Loading";
-import RentRequestForm from "../../components/RentRequestForm";
+import RentRequestForm from "../../components/rentRequestForm";
 import { FaMoneyBillWave } from "react-icons/fa";
 
 export default function AllRequests() {
