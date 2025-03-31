@@ -8,7 +8,7 @@ router.get('/userSells',authController.protect,productController.getUserSells);
 router.put("/markSold/:requestId",productController.markSoldProduct);
 router
   .route("/")
-  .get(productController.getAllProducts)
+  .get(productController.getAllShopProducts)
   
   router.get('/sells', productController.getAllStudentSells);
 // router
