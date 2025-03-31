@@ -11,10 +11,10 @@ router
   .get(productController.getAllShopProducts)
   
   router.get('/sells', productController.getAllStudentSells);
-// router
-//   .route("/:id")
-//   .get(productController.getProduct)
-//   .patch(productController.updateProduct)
+ router
+   .route("/:id")
+   .delete(productController.deleteSell)
+   .patch(productController.updateProduct)
 
 router
   .route("/category/:categoryName")

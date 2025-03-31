@@ -50,103 +50,26 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// exports.updateProduct = catchAsync(async (req, res, next) => {
-//   const doc = await Product.findByIdAndUpdate(req.params.id, req.body, {
-//     new: true,
-//     runValidators: true,
-//   }).exec();
 
-//   if (!doc) {
-//     return next(new AppError("No product found with that ID", 404));
-//   }
 
-//   res.status(200).json({
-//     status: "success",
-//     data: {
-//       product: doc,
-//     },
-//   });
-// });
 
-// exports.getProduct = catchAsync(async (req, res, next) => {
-//   const product = await Product.findById(req.params.id).populate(
-//     "sellerId",
-//     "shopName shopAddress hostelName roomNumber sellerType"
-//   );
+exports.updateProduct = catchAsync(async (req, res, next) => {
+  const doc = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  }).exec();
 
-//   if (!product) {
-//     return next(new AppError("No product found with that ID", 404));
-//   }
-
-//   const seller = product.sellerId;
-//   const sellerDetails = seller.sellerType === "shopkeeper"
-//     ? { shopName: seller.shopName, shopAddress: seller.shopAddress }
-//     : { hostelName: seller.hostelName, roomNumber: seller.roomNumber };
-
-//   res.status(200).json({
-//     status: "success",
-//     data: {
-//       product,
-//       sellerDetails,
-//     },
-//   });
-// });
-
-exports.getAllProductsForAdmin = catchAsync(async (req, res, next) => {
-  try {
-    const products = await Product.find();
-
-    res.status(200).json({
-      status: "success",
-      results: products.length,
-      data: products,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+  if (!doc) {
+    return next(new AppError("No product found with that ID", 404));
   }
-});
 
-exports.deleteProductAsAdmin = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedProduct = await Product.findByIdAndDelete(id);
-    console.log(deletedProduct);
-
-    if (!deletedProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    // Create notification
-    const recipientId = deletedProduct.sellerId;
-    const senderId = req.user._id;
-    const content = `Your product ${deletedProduct.productName} is deleted by admin`;
-    
-    const newNotification = new Notification({
-      receiver: recipientId,
-      sender: senderId,
-      messagePreview: content,
-      isRead: false,
-    });
-    await newNotification.save();
-    try {
-      if (io) {
-        io.to(`${recipientId}`).emit("newMessageNotification", {
-          sender: senderId,
-          messagePreview: content,
-          timestamp: Date.now(),
-        });
-      } else {
-        console.error("Socket.io is not initialized.");
-      }
-    } catch (error) {
-      console.error("Error saving notification:", error);
-    }
-
-    res.status(200).json({ message: "Product deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-  }
-};
+  res.status(200).json({
+    status: "success",
+    data: {
+      product: doc,
+    },
+  });
+})
 
 exports.getAllShopProducts = catchAsync(async (req, res, next) => {
   try {
@@ -273,3 +196,77 @@ exports.getProductsByCategory = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+
+
+exports.deleteSell=catchAsync(async (req,res,next) => {
+  console.log("req.params"+req.params.id);
+ const doc=await Product.findByIdAndDelete(req.params.id);
+ console.log(doc);
+
+  if (!doc) {
+    return next(new AppError("No Rent Request found with that ID", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      product: doc,
+    },
+  });
+})
+exports.getAllProductsForAdmin = catchAsync(async (req, res, next) => {
+  try {
+    const products = await Product.find();
+
+    res.status(200).json({
+      status: "success",
+      results: products.length,
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+exports.deleteProductAsAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedProduct = await Product.findByIdAndDelete(id);
+    console.log(deletedProduct);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Create notification
+    const recipientId = deletedProduct.sellerId;
+    const senderId = req.user._id;
+    const content = `Your product ${deletedProduct.productName} is deleted by admin`;
+    
+    const newNotification = new Notification({
+      receiver: recipientId,
+      sender: senderId,
+      messagePreview: content,
+      isRead: false,
+    });
+    await newNotification.save();
+    try {
+      if (io) {
+        io.to(`${recipientId}`).emit("newMessageNotification", {
+          sender: senderId,
+          messagePreview: content,
+          timestamp: Date.now(),
+        });
+      } else {
+        console.error("Socket.io is not initialized.");
+      }
+    } catch (error) {
+      console.error("Error saving notification:", error);
+    }
+
+    res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};

@@ -74,6 +74,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     requestedSells:
       req.body.role === "student" ? req.body.requestedSells || [] : undefined,
   });
+  
+ 
   createSendToken(newUser, 201, res);
 });
 
@@ -139,8 +141,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) get user based on POSTED email
+  
   const user = await User.findOne({ email: req.body.email });
-
+  
+ 
   if (!user) {
     return next(new AppError("There is no user with email address.", 404));
   }
