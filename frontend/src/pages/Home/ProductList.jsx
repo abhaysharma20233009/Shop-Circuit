@@ -3,11 +3,12 @@ import ProductCard from "./ProductCard.jsx";
 import { useProductData } from "../../store/productDataStore.jsx";
 import { FaSearch } from "react-icons/fa";
 import LoadingPage from "../../components/Loading";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import BannerScroller from "./BannerScroller.jsx";
 
 export default function ProductList() {
   const navigate = useNavigate();
-  const [visibleProducts, setVisibleProducts] = useState(5);
+  const [visibleProducts, setVisibleProducts] = useState(10);
   const { products, loading } = useProductData();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -37,49 +38,59 @@ export default function ProductList() {
 
   return (
     <div className="bg-gray-900 min-h-screen p-1">
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between bg-gray-800 p-1 rounded-lg shadow-lg">
-        <h1 className="text-white text-xl font-bold mb-3 md:mb-0">🔍 Search & Filter</h1>
-        <div className="relative w-full max-w-md">
-          <input
-            type="text"
-            placeholder="Search for products..."
-            className="w-full p-2 pl-10 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-blue-400 outline-none transition-all"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-all">
-            <FaSearch />
-          </button>
+      
+      {/* Sticky Container for Filter & Search */}
+      <div className=" w-full z-10 bg-gray-900/80 backdrop-blur-md shadow-lg border-b border-gray-700">
+        
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between p-2">
+          <h1 className="text-white text-lg font-bold">🔍 Search & Filter</h1>
+
+          <div className="relative w-full max-w-md">
+            <input
+              type="text"
+              placeholder="Search for products..."
+              className="w-full p-2 pl-10 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-400 outline-none transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-all">
+              <FaSearch />
+            </button>
+          </div>
+
+          {/* Rents & Sells Buttons */}
+          <div className="flex gap-3 mt-2 md:mt-0">
+            <button className="px-4 py-1 bg-purple-500 text-white rounded-md font-semibold hover:bg-purple-600 transition-all" onClick={() => navigate("/rents")}>
+              Rents
+            </button>
+            <button className="px-4 py-1 bg-blue-500 text-white rounded-md font-semibold hover:bg-blue-600 transition-all" onClick={() => navigate("/sells")}>
+              Sells
+            </button>
+          </div>
         </div>
 
-        {/* Rents & Sells Buttons */}
-        <div className="flex gap-3  md:mt-0">
-          <button className="px-4 py-1 bg-purple-500 text-white rounded-md font-semibold hover:bg-purple-600 transition-all" onClick={() => navigate("/rents")}>
-            Rents
-          </button>
-          <button className="px-4 py-1 bg-blue-500 text-white rounded-md font-semibold hover:bg-blue-600 transition-all" onClick={() => navigate("/sells")}>
-            Sells
-          </button>
+        {/* Category Filter Buttons */}
+        <div className="flex flex-wrap gap-2 justify-center py-2 bg-gray-800/90">
+          {categories.map((category) => (
+            <button
+              key={category}
+              className={`px-4 py-1 rounded-full text-sm font-semibold transition-all duration-300 shadow-md ${
+                selectedCategory === category
+                  ? "bg-blue-600 text-white shadow-blue-500/50 scale-105"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white"
+              }`}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </button>
+          ))}
         </div>
+
       </div>
 
-      {/* Category Filter Buttons */}
-      <div className="flex flex-wrap gap-3 p-1 mt-1 justify-center bg-gray-800 rounded-lg shadow-md">
-        {categories.map((category) => (
-          <button
-            key={category}
-            className={`px-4 py-1 rounded-full text-sm font-semibold transition-all duration-300 shadow-md ${
-              selectedCategory === category
-                ? "bg-blue-600 text-white shadow-blue-500/50 scale-105"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white"
-            }`}
-            onClick={() => setSelectedCategory(category)}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
+      {/* Banner Scroller */}
+      <BannerScroller />
 
       {/* Product List */}
       {loading ? (
