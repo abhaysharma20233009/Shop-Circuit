@@ -40,7 +40,7 @@ export default function EditUserProfile() {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/upload-profile-photo",
+        "/api/v1/users/upload-profile-photo",
         {
           method: "POST",
           body: formData,
