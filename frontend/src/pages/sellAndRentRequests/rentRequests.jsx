@@ -17,7 +17,7 @@ export default function AllRequests() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/v1/rent/rent", {
+        const response = await fetch("/api/v1/rent/rent", {
           credentials: "include",
         });
         const data = await response.json();

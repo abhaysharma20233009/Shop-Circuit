@@ -15,7 +15,7 @@ export default function AllSells() {
     const fetchUserData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/v1/products/sells",
+          "/api/v1/products/sells",
           { credentials: "include" }
         );
         const data = await response.json();
