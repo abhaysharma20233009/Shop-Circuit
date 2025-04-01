@@ -50,9 +50,6 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-
-
-
 exports.updateProduct = catchAsync(async (req, res, next) => {
   const doc = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -69,7 +66,7 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
       product: doc,
     },
   });
-})
+});
 
 exports.getAllShopProducts = catchAsync(async (req, res, next) => {
   try {
@@ -197,12 +194,9 @@ exports.getProductsByCategory = catchAsync(async (req, res, next) => {
   });
 });
 
-
-
-exports.deleteSell=catchAsync(async (req,res,next) => {
-  console.log("req.params"+req.params.id);
- const doc=await Product.findByIdAndDelete(req.params.id);
- console.log(doc);
+exports.deleteSell = catchAsync(async (req, res, next) => {
+  console.log("req.params" + req.params.id);
+  const doc = await Product.findByIdAndDelete(req.params.id);
 
   if (!doc) {
     return next(new AppError("No Rent Request found with that ID", 404));
@@ -214,10 +208,15 @@ exports.deleteSell=catchAsync(async (req,res,next) => {
       product: doc,
     },
   });
-})
+});
 exports.getAllProductsForAdmin = catchAsync(async (req, res, next) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find()
+      .populate(
+        "sellerId",
+        "shopName shopAddress contactNumber sellerType roomNumber hostelName"
+      )
+      .exec();
 
     res.status(200).json({
       status: "success",
@@ -243,7 +242,7 @@ exports.deleteProductAsAdmin = async (req, res) => {
     const recipientId = deletedProduct.sellerId;
     const senderId = req.user._id;
     const content = `Your product ${deletedProduct.productName} is deleted by admin`;
-    
+
     const newNotification = new Notification({
       receiver: recipientId,
       sender: senderId,
