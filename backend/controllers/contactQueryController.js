@@ -1,14 +1,40 @@
 const  ContactQuery =require( "../models/contactQueryModel.js");
 const User = require("../models/userModel.js");
-
+const Notification=require("../models/notificationModel.js")
 // Create a new contact query
 exports.createQuery = async (req, res) => {
   try {
+    
     const id=req.user._id;
     const user=await User.findById(id);
     console.log(user+"user"+user.username);
     const { message } = req.body;
     const newQuery = await ContactQuery.create({ name:user.username, email:user.email, message });
+    const admin = await User.findOne({ role: "admin" }); 
+     const recipientId = admin._id;
+        const senderId = req.user._id;
+        const content = message;
+    
+        const newNotification = new Notification({
+          receiver: recipientId,
+          sender: senderId,
+          messagePreview: content,
+          isRead: false,
+        });
+        await newNotification.save();
+        try {
+          if (io) {
+            io.to(`${recipientId}`).emit("newMessageNotification", {
+              sender: senderId,
+              messagePreview: content,
+              timestamp: Date.now(),
+            });
+          } else {
+            console.error("Socket.io is not initialized.");
+          }
+        } catch (error) {
+          console.error("Error saving notification:", error);
+        } 
     res.status(201).json(newQuery);
   } catch (error) {
     res.status(500).json({ error: "Failed to create contact query" });
