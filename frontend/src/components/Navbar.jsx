@@ -78,7 +78,8 @@ export default function Navbar() {
         </div>
 
         {/* Profile Image */}
-        <div className="relative">
+       {displayUser.role!=="admin"&&(
+         <div className="relative">
           <img
             src={displayUser.profilePicture}
             alt="Profile"
@@ -109,16 +110,18 @@ export default function Navbar() {
             </div>
           )}
         </div>
-      </div>
-
+     
+      )}
+            </div>
       {/* Sidebar */}
-      <div className={`z-20 fixed top-0 left-0 h-full w-64 bg-gray-800 text-white p-6 shadow-xl transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"} sidebar`}> 
+     
+        <div className={`z-20 fixed top-0 left-0 h-full w-64 bg-gray-800 text-white p-6 shadow-xl transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"} sidebar`}> 
         <div className="flex justify-between items-center border-b pb-3 border-gray-600">
           <button onClick={toggleSidebar} className="text-2xl text-red-400 hover:text-red-600 transition-transform transform hover:scale-110">
             <FaTimes />
           </button>
         </div>
-
+        {displayUser.role!=="admin"&&( 
         <ul className="mt-6 space-y-6 text-lg font-semibold">
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/dashboard')}>🏠 Home</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/me')}>👤 Profile</li>
@@ -155,7 +158,23 @@ export default function Navbar() {
         )}
       </li>
         </ul>
+         )}
+         {displayUser.role==="admin"&&
+         (
+             <ul className="mt-2 space-y-2 text-lg font-semibold">
+              <li className="px-4  hover:bg-red-600 cursor-pointer" onClick={() => navigate('/admin-dashboard')}>      dashboard
+                </li>
+                <li className="px-4  hover:bg-red-600 cursor-pointer" onClick={() => navigate('/contact-queries')}>
+                   contacts queries
+                </li>
+                <li className="px-4  hover:bg-red-600 cursor-pointer" onClick={() => handleLogout()}>
+                   Logout
+                </li>
+
+          </ul>
+         )}
       </div>
+     
     </div>
   );
 }
