@@ -281,18 +281,18 @@ const ChatBox = ({ chatUser }) => {
       )}
 
       {/* Chat User Profile */}
-      <div className="flex items-center mb-4 space-x-4">
+      <div className="flex items-center mb-2 space-x-4">
         <img
           src={chatUser.profilePicture || pic}
           alt=""
-          className="rounded-full h-12 w-12 md:h-16 md:w-16"
+          className="rounded-full h-10 w-10 md:h-14 md:w-14"
         />
         <div>
           <h2 className="text-lg font-semibold text-black-500">
             {chatUser.username}
           </h2>
           {recipientId && (
-            <p className="text-sm text-gray-400">
+            <p className="text-[12px] text-gray-400">
               last seen at {formatLastSeen(lastSeen) || "recently"}
             </p>
           )}
