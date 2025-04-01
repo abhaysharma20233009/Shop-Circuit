@@ -15,27 +15,13 @@ const Chats = () => {
   };
 
   return (
-    <div className="flex h-screen main overflow-hidden p-10">
+    <div className="flex h-screen main overflow-hidden p-3 pb-15">
       {/* Sidebar - Chat List */}
 
       <div className="w-34/100 text-white flex flex-col border-r border-gray-700 overflow-hidden">
         {/* Header */}
         <div className="p-4 chat-list-header flex items-center justify-between">
           <h1 className="text-white font-bold text-lg md:text-2xl  pt-1 pb-1">Chats</h1>
-            {/* Profile Picture */}
-                 <div className="flex flex-col items-center">
-                    <div className="w-14 h-14 rounded-full overflow-hidden  shadow-lg">
-                      <img
-                        src={user.profilePicture || "/cop.jpg"}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-          <strong>You : {user.username}</strong>        
-          <button className="text-gray-300 hover:text-white transition">
-            <i className="fas fa-cog"></i> {/* Settings Icon */}
-          </button>
         </div>
         
         {/* Chat List */}
