@@ -47,7 +47,7 @@ export default function Navbar() {
     setData(childData);
   };
   const handleLogout=async ()=>{
-    const response =await  fetch(`http://localhost:3000/api/v1/users/logout`, {
+    const response =await  fetch(`/api/v1/users/logout`, {
       credentials: "include", // Include cookies for authentication
     });
     if(response.ok){

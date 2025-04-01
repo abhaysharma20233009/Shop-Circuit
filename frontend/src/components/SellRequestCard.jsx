@@ -9,7 +9,7 @@ const SellRequestsCard = () => {
   useEffect(() => {
     const fetchRequestData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/v1/products/userSells", {
+        const response = await fetch("/api/v1/products/userSells", {
           credentials: "include", // Include cookies for authentication
         });
         const data = await response.json();

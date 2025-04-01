@@ -12,7 +12,7 @@ export default function ContactPage() {
     setStatus({ submitted: false, error: null });
 
     try {
-      const response = await fetch("http://localhost:3000/api/v1/admin/contact", {
+      const response = await fetch("/api/v1/admin/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

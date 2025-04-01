@@ -288,7 +288,7 @@ const ChatBox = ({ chatUser }) => {
           className="rounded-full h-10 w-10 md:h-14 md:w-14"
         />
         <div>
-          <h2 className="text-lg font-semibold text-black-500">
+          <h2 className="text-lg font-semibold text-gray-900">
             {chatUser.username}
           </h2>
           {recipientId && (
