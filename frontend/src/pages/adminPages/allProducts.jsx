@@ -105,16 +105,6 @@ export default function ProductList() {
                     alt={product.productName}
                     className="w-full h-52 object-cover rounded-t-xl"
                   />
-                  {product.sellerId?.shopName && (
-                    <h3 className="text-lg font-bold text-white mt-2 truncate">
-                      {product.sellerId.shopName}
-                    </h3>
-                  )}
-                  {product.sellerId?.hostelName && (
-                    <h3 className="text-lg font-bold text-white mt-2 truncate">
-                      {product.sellerId.hostelName}
-                    </h3>
-                  )}
                   <h3 className="text-lg font-bold text-white mt-2 truncate">
                     {product.productName}
                   </h3>
@@ -184,26 +174,26 @@ export default function ProductList() {
                 </h2>
                 {selectedProduct.sellerId?.shopName && (
                   <h3 className="text-lg font-bold text-white mt-2 truncate">
-                    {selectedProduct.sellerId.shopName}
+                    Shop Name : {selectedProduct.sellerId.shopName}
                   </h3>
                 )}
                 {selectedProduct.sellerId?.hostelName && (
                   <h3 className="text-lg font-bold text-white mt-2 truncate">
-                    {selectedProduct.sellerId.hostelName}
+                    Hostel Name : {selectedProduct.sellerId.hostelName}
                   </h3>
                 )}
                 {selectedProduct.sellerId?.shopAddress && (
                   <h3 className="text-lg font-bold text-white mt-2 truncate">
-                    {selectedProduct.sellerId.shopAddress}
+                    Shop Address : {selectedProduct.sellerId.shopAddress}
                   </h3>
                 )}
                 {selectedProduct.sellerId?.roomNumber && (
                   <h3 className="text-lg font-bold text-white mt-2 truncate">
-                    {selectedProduct.sellerId.roomNumber}
+                    Room Number : {selectedProduct.sellerId.roomNumber}
                   </h3>
                 )}
                 <p className="text-gray-400 mt-2">
-                  {selectedProduct.description}
+                  Description : {selectedProduct.description}
                 </p>
                 <p className="text-green-400 text-lg font-bold mt-4">
                   ${selectedProduct.price}
