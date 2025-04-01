@@ -9,7 +9,7 @@ import { FaMoneyBillWave } from "react-icons/fa";
 
 export default function AllRequests() {
   const [products, setProducts] = useState([]);
-  const [visibleProducts, setVisibleProducts] = useState(5);
+  const [visibleProducts, setVisibleProducts] = useState(10);
   const [loading, setLoading] = useState(true);
   const [isRentRequestModalOpen, setIsRentRequestModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ export default function AllRequests() {
     setVisibleProducts((prev) => prev + 10);
   };
 
-  // ✅ Navigate to chat page
+  //  Navigate to chat page
   const handleMessageClick = (studentId) => {
     if (studentId) {
       navigate(`/chat`, { state: { studentId } });
@@ -57,7 +57,7 @@ export default function AllRequests() {
       {/* Header with Button on the Right */}
       <div className="flex items-center justify-between mb-10">
         <h1 className="text-4xl font-extrabold text-purple-400 tracking-wide">
-          🚀 All Rent Requests 🚀
+           All Rent Requests 
         </h1>
         <button
           className="flex items-center justify-center bg-purple-500 text-white font-medium px-6 py-3 rounded-lg hover:bg-purple-600 transition shadow-md"
@@ -78,9 +78,9 @@ export default function AllRequests() {
             {product.studentId && (
               <button
                 onClick={() => handleMessageClick(product.studentId)}
-                className="absolute top-3 right-3  text-blue-400 hover:text-blue-500 transition-all"
+                className="absolute top-5 right-3  text-blue-400 hover:text-blue-500 transition-all"
               >
-                <MessageCircle size={22} />
+                <MessageCircle size={30} />
                 {/* Tooltip */}
                 <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs font-semibold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   Message
@@ -89,12 +89,16 @@ export default function AllRequests() {
             )}
 
             {/* Request Details */}
+            
+            <div className="  mb-3">
+              <img src={product.studentId?.profilePicture} alt=""  className="h-10 w-10 rounded-full"/>
+            </div>
+            <p className="text-gray-400">
+               {product.studentId?.username}
+              </p>
             <h2 className="text-xl font-bold text-purple-300">
               {product.itemName}
             </h2>
-            <p className="text-gray-400">
-              🔹 Renter: {product.studentId?.username}
-            </p>
             <p className="text-gray-300">
               🛒 Items Required: {product.numberOfItems}
             </p>
