@@ -35,7 +35,7 @@ export default function SellRequestForm({ isOpen, onClose }) {
       Object.keys(sellData).forEach((key) => formData.append(key, sellData[key]));
       formData.append("image", image);
 
-      const response = await fetch("/api/v1/products/createProduct", {
+      const response = await fetch("http://localhost:3000/api/v1/products/createProduct", {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -143,4 +143,5 @@ export default function SellRequestForm({ isOpen, onClose }) {
       </div>
     </>
   );
-}  
+}
+  
