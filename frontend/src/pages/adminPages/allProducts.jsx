@@ -26,7 +26,7 @@ export default function ProductList() {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/v1/admin/products",
+          "/api/v1/admin/products",
           { withCredentials: true }
         );
         setProducts(response.data.data);
@@ -53,7 +53,7 @@ export default function ProductList() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/v1/admin/product/${id}`, {
+      await axios.delete(`/api/v1/admin/product/${id}`, {
         withCredentials: true,
       });
       setProducts((prev) => prev.filter((product) => product._id !== id));
