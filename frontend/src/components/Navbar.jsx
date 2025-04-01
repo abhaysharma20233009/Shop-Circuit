@@ -124,7 +124,9 @@ export default function Navbar() {
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/me')}>👤 Profile</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/sells')}>🛒 Sells</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/rents')}>🔄 Rents</li>
-          <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/chat')}>📩 Chats</li>
+         {
+          displayUser.role==="student"&&  <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/chat')}>📩 Chats</li>
+         }
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/about')}>📜 About</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/services')}>⚙️ Services</li>
           <li className="hover:text-blue-400 cursor-pointer transition-transform transform hover:scale-110" onClick={() => navigate('/contact')}>📞 Contact</li>
