@@ -4,7 +4,7 @@ import defaulPic from '../assets/react.svg';
 import { useNavigate } from "react-router-dom";
 import NotificationDropdown from "./Notification";
 
-import { useData } from "../store/userDataStore"; // Adjust the import path as necessary 
+import { useData } from "../store/userDataStore";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
