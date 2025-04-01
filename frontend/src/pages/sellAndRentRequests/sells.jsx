@@ -5,7 +5,7 @@ import LoadingPage from "../../components/Loading";
 
 export default function AllSells() {
   const [products, setProducts] = useState([]);
-  const [visibleProducts, setVisibleProducts] = useState(5);
+  const [visibleProducts, setVisibleProducts] = useState(10);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -79,9 +79,12 @@ export default function AllSells() {
               <h2 className="text-xl font-bold text-cyan-300">
                 {product.productName}
               </h2>
-              <p className="text-gray-300 font-semibold mt-1">
-                👤 Seller: {product.sellerId?.username}
+              <div className="flex items-center  mt-2">
+                <img src={product.sellerId?.profilePicture} alt=""  className="w-10 h-10 rounded-full"/>
+              <p className="text-gray-300 font-semibold ml-1">
+                 {product.sellerId?.username}
               </p>
+              </div>
 
               {/* Buttons */}
               <div className="flex justify-between items-center mt-4">
