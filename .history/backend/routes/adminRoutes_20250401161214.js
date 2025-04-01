@@ -3,13 +3,12 @@ const productController = require("./../controllers/productController");
 const requestedRentController = require("./../controllers/requestedRentController");
 const authController = require("../controllers/authController");
 const { adminMiddleware } = require("./../middlewares/authMiddleware");
-const {
+import {
   createQuery,
   getAllQueries,
-  deleteContactQuery,
   getQueryById,
   updateQueryStatus,
-} =require("../controllers/contactQueryController.js");
+} from "../controllers/contactQueryController.js";
 const router = express.Router();
 
 router.use(authController.protect);
@@ -41,11 +40,4 @@ router.delete(
   requestedRentController.deletePendingRequestAsAdmin
 );
 
-
-// User can submit a contact query
-router.post("/contact", createQuery);
-
-// Admin can fetch all queries
-router.get("/contact-queries", getAllQueries);
-router.delete("/contact-queries/:id", deleteContactQuery);
 module.exports = router;

@@ -6,7 +6,6 @@ const { adminMiddleware } = require("./../middlewares/authMiddleware");
 const {
   createQuery,
   getAllQueries,
-  deleteContactQuery,
   getQueryById,
   updateQueryStatus,
 } =require("../controllers/contactQueryController.js");
