@@ -18,7 +18,7 @@ import ContactPage from "./components/Contact.jsx";
 import ServicesPage from "./components/Services.jsx";
 import AboutPage from "./components/About.jsx";
 import { ToastContainer } from "react-toastify";
-
+import AdminContactQueries from "./pages/adminPages/contactQueries.jsx";
 import ForgotPassword from "./pages/account-setting/forgotPassword.jsx";
 import AccountSettings from "./pages/account-setting/account-setting.jsx";
 import ResetPassword from "./pages/account-setting/resetPassword.jsx";
@@ -132,9 +132,17 @@ function App() {
             <Route
               path="/admin-dashboard"
               element={
-                <AuthLayout>
+                <ProfileLayout>
                   <AdminDashboard />
-                </AuthLayout>
+                </ProfileLayout>
+              }
+            />
+              <Route
+              path="/contact-queries"
+              element={
+                <ProfileLayout>
+                  <AdminContactQueries />
+                </ProfileLayout>
               }
             />
             {/*  Authentication Routes */}
