@@ -91,20 +91,20 @@ export default function UserProfile() {
           >
             <FaShoppingCart className="mr-2" /> Sell Product
           </button>
-          <button
+         {user.role==="student"&& <button
             className="flex items-center justify-center bg-red-500 text-white font-medium px-6 py-3 rounded-lg hover:bg-red-600 transition w-1/2 ml-2 shadow-md"
             onClick={handleOpenRentModal}
           >
             <FaMoneyBillWave className="mr-2" /> Request Rent
-          </button>
+          </button>}
         </div>
       </div>
 
       {/* Right Section: Rent and Sell Requests */}
       <div className="flex flex-col w-full">
-        <div className="w-full mb-8">
+       {user.role==="student"&& <div className="w-full mb-8">
           <RentRequestsCard />
-        </div>
+        </div>}
         <div className="w-full">
           <SellRequestCard />
         </div>
