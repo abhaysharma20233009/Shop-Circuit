@@ -6,9 +6,10 @@ const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 const fs = require("fs");
 const Notification = require("../models/notificationModel");
+const User = require("../models/userModel");
 exports.createProduct = async (req, res) => {
   try {
-    const { productName, price, noOfItems, description, sellerType, category } =
+    const { productName, price, noOfItems, description, category } =
       req.body;
 
     // Check if an image was uploaded
@@ -26,7 +27,8 @@ exports.createProduct = async (req, res) => {
 
     const productImage = result.secure_url;
     const sellerId = req.user._id;
-
+    const user=await User.findById(sellerId);
+    const sellerType=user.role;
     // Create and save product
     const newProduct = await Product.create({
       productName,
