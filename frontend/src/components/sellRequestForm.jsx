@@ -9,7 +9,7 @@ export default function SellRequestForm({ isOpen, onClose }) {
     price: "",
     noOfItems: "",
     description: "",
-    sellerType: "",
+    
     category: "",
   });
   
@@ -35,7 +35,7 @@ export default function SellRequestForm({ isOpen, onClose }) {
       Object.keys(sellData).forEach((key) => formData.append(key, sellData[key]));
       formData.append("image", image);
 
-      const response = await fetch("http://localhost:3000/api/v1/products/createProduct", {
+      const response = await fetch("/api/v1/products/createProduct", {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -71,7 +71,6 @@ export default function SellRequestForm({ isOpen, onClose }) {
               {[{ label: "Product Name", name: "productName", type: "text" },
                 { label: "Price ($)", name: "price", type: "number" },
                 { label: "Number of Items", name: "noOfItems", type: "number" },
-                { label: "Seller Type", name: "sellerType", options: ["shopkeeper", "student"] },
                 { label: "Category", name: "category", options: ["electronics", "food", "vehicle", "fashion", "stationary"] }].map((field, index) => (
                   <div key={index}>
                     <label className="block text-sm font-medium text-gray-300">{field.label}</label>
@@ -144,4 +143,5 @@ export default function SellRequestForm({ isOpen, onClose }) {
       </div>
     </>
   );
-}  
+}
+  

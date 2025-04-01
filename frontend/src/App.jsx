@@ -140,9 +140,12 @@ function App() {
               <Route
               path="/contact-queries"
               element={
-                <ProfileLayout>
+                <UserDataProvider>
+                   <ProfileLayout>
                   <AdminContactQueries />
                 </ProfileLayout>
+                </UserDataProvider>
+               
               }
             />
             {/*  Authentication Routes */}

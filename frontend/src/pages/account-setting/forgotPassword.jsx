@@ -12,7 +12,7 @@ function ForgotPassword() {
     setError('');
 
     try {
-        const response = await fetch('http://localhost:3000/api/v1/users/forgotPassword', {
+        const response = await fetch('/api/v1/users/forgotPassword', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

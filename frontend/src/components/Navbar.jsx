@@ -4,7 +4,7 @@ import defaulPic from '../assets/react.svg';
 import { useNavigate } from "react-router-dom";
 import NotificationDropdown from "./Notification";
 
-import { useData } from "../store/userDataStore"; // Adjust the import path as necessary 
+import { useData } from "../store/userDataStore";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +47,7 @@ export default function Navbar() {
     setData(childData);
   };
   const handleLogout=async ()=>{
-    const response =await  fetch(`http://localhost:3000/api/v1/users/logout`, {
+    const response =await  fetch(`/api/v1/users/logout`, {
       credentials: "include", // Include cookies for authentication
     });
     if(response.ok){

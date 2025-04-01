@@ -13,7 +13,7 @@ const AccountSettings = () => {
     // Handle email update logic
     const data={email:email}
     try {
-        const res = await fetch('http://localhost:3000/api/v1/users/updateMe', {
+        const res = await fetch('/api/v1/users/updateMe', {
             method: 'PATCH',
             credentials: 'include', // Ensures cookies are sent if needed
             headers: {
@@ -45,7 +45,7 @@ const AccountSettings = () => {
       passwordConfirm: confirmPassword,
     };
     try {
-        const res = await fetch('http://localhost:3000/api/v1/users/updateMyPassword', {
+        const res = await fetch('/api/v1/users/updateMyPassword', {
           method: 'PATCH',
           credentials: 'include', // Ensures cookies are sent if needed
           headers: {

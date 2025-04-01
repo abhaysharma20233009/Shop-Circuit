@@ -25,7 +25,7 @@ export default function RentRequestForm({ isOpen, onClose }) {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/v1/rent/rent", {
+      const response = await fetch("/api/v1/rent/rent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -66,7 +66,11 @@ export default function RentRequestForm({ isOpen, onClose }) {
             {/* Input Fields */}
             {[
               { label: "Item Name", name: "itemName", type: "text" },
-              { label: "Number of Items", name: "numberOfItems", type: "number" },
+              {
+                label: "Number of Items",
+                name: "numberOfItems",
+                type: "number",
+              },
               { label: "Duration (months)", name: "duration", type: "text" },
               { label: "Description", name: "description", type: "text" },
             ].map((field, index) => (

@@ -9,7 +9,7 @@ export const ProductsDataProvider = ({ children }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/v1/products", {
+        const response = await fetch("/api/v1/products", {
           credentials: "include", // Include cookies for authentication
         });
         console.log(response);

@@ -6,6 +6,7 @@ const { adminMiddleware } = require("./../middlewares/authMiddleware");
 const {
   createQuery,
   getAllQueries,
+  deleteContactQuery,
   getQueryById,
   updateQueryStatus,
 } =require("../controllers/contactQueryController.js");
@@ -46,4 +47,5 @@ router.post("/contact", createQuery);
 
 // Admin can fetch all queries
 router.get("/contact-queries", getAllQueries);
+router.delete("/contact-queries/:id", deleteContactQuery);
 module.exports = router;

@@ -30,7 +30,7 @@ export default function AllRequests() {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/v1/rent/rent", {
+        const response = await fetch("/api/v1/rent/rent", {
           credentials: "include",
         });
         const data = await response.json();
@@ -58,7 +58,7 @@ export default function AllRequests() {
   const handleDelete = async (id) => {
     try {
       const res = await axios({
-        url: `http://localhost:3000/api/v1/admin/rent/${id}`,
+        url: `/api/v1/admin/rent/${id}`,
         method: "DELETE",
         withCredentials: true,
       });

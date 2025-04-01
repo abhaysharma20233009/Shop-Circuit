@@ -13,7 +13,7 @@ const RentRequestsCard = () => {
     const fetchRequestData = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:3000/api/v1/rent/", {
+        const response = await fetch("/api/v1/rent/", {
           credentials: "include",
         });
         const data = await response.json();
