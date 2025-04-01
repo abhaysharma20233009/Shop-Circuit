@@ -12,7 +12,7 @@ const AdminContactQueries = () => {
   const fetchQueries = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3000/api/v1/admin/contact-queries", {
+      const response = await fetch("/api/v1/admin/contact-queries", {
         credentials: "include",
       });
 
