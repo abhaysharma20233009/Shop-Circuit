@@ -6,7 +6,8 @@ import { io } from "socket.io-client";
 import pic from "./defaultImg_shopCircuit.webp";
 import { useLocation } from "react-router-dom";
 
-const socket = io("http://localhost:3000", {
+
+const socket = io("http://localhost:5000",{
   withCredentials: true,
   path: "/socket.io",
 });
@@ -17,6 +18,7 @@ const Chatlist = ({ onSelectChat }) => {
   const location = useLocation();
   const variable = location.state?.studentId;
   //  console.log("helohello" + variable.username);
+  
 
   useEffect(() => {
     console.log("Emitting userList event...");
