@@ -38,6 +38,7 @@ const ChatBox = ({ chatUser }) => {
   const [showOptions, setShowOptions] = useState(null);
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isUserAtBottom, setIsUserAtBottom] = useState(true); // ✅ Track scroll position
 
   // for emoji:
   const [text, setText] = useState("");
@@ -51,6 +52,21 @@ const ChatBox = ({ chatUser }) => {
   const messagesContainerRef = useRef(null);
 
   const recipientId = chatUser._id;
+
+  // Detect when user scrolls manually to disable auto-scroll
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    const handleScroll = () => {
+      if (!container) return;
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <=
+        container.clientHeight + 50;
+      setIsUserAtBottom(isAtBottom); // Set whether we're at bottom
+    };
+
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = () => {
@@ -217,8 +233,11 @@ const ChatBox = ({ chatUser }) => {
   };
 
   // Scroll to bottom when messages change
+  // Auto scroll only if user is at bottom
   useEffect(() => {
-    scrollToBottom();
+    if (isUserAtBottom) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   // Scroll to bottom when a new chat is opened
@@ -234,8 +253,6 @@ const ChatBox = ({ chatUser }) => {
       handleSendMessage(); // Call the send message function
     }
   };
-
-  const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
 
   const toggleOptions = (index) =>
     setShowOptions((prev) => (prev === index ? null : index));
@@ -437,19 +454,6 @@ const ChatBox = ({ chatUser }) => {
             <EmojiPicker onEmojiClick={addEmoji} />
           </div>
         )}
-
-        <input
-          type="file"
-          id="fileInput"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <label
-          htmlFor="fileInput"
-          className="text-gray-500 pl-1 pr-1 cursor-pointer mr-2"
-        >
-          <FontAwesomeIcon icon={faPaperclip} />
-        </label>
 
         <input
           type="text"
