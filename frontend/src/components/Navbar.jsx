@@ -97,11 +97,11 @@ export default function Navbar() {
                 <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/editProfile',{ state: { user } })}>
                   ✏️ Edit Profile
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/sell-product')}>
-                  🛒 Sell Product
+                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/sells')}>
+                  🛒 Sells
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/request-rent')}>
-                  🔄 Request Rent
+                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/rents')}>
+                  🔄 Rents
                 </li>
                 <li className="px-4 py-2 hover:bg-red-600 cursor-pointer" onClick={() => handleLogout()}>
                   🚪 Logout
