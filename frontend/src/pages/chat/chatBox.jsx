@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPaperclip,
   faPaperPlane,
-  faEllipsisV,
   faTrash,
   faClock,
   faCheck,
@@ -13,57 +12,78 @@ import {
 import EmojiPicker from "emoji-picker-react";
 import { ChevronDown } from "lucide-react";
 import pic from "./defaultImg_shopCircuit.webp";
+import { debounce } from "lodash";
+import BlueDoubleTickIcon from './blueTickIcon';
+
 const socket = io("http://localhost:3000", {
   withCredentials: true,
-  path: "/socket.io", // Ensure this matches the server path
+  path: "/socket.io",
 });
 
 const ChatBox = ({ chatUser }) => {
   const formatLastSeen = (date) => {
     const options = {
       year: "numeric",
-      month: "short", // Jan, Feb, Mar, etc.
+      month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false, // 24-hour format
-      timeZone: "Asia/Kolkata", // Timezone for IST
+      hour12: false,
+      timeZone: "Asia/Kolkata",
       timeZoneName: "short",
     };
     return new Intl.DateTimeFormat("en-IN", options).format(new Date(date));
   };
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-
-  // for emoji:
-  const [text, setText] = useState("");
   const [showPicker, setShowPicker] = useState(false);
-  const addEmoji = (emojiObject) => {
-    setInput((prev) => prev + emojiObject.emoji);
-    setShowPicker(false);
-  };
-
   const [lastSeen, setLastSeen] = useState(null);
+  
   const messagesContainerRef = useRef(null);
-
   const recipientId = chatUser._id;
 
+  // Debounced function to mark messages as seen
+  const markAsSeen = useCallback(debounce(() => {
+    socket.emit("markMessagesAsSeen", { recipientId });
+  }, 300), [recipientId]);
+
+  // Automatic message seen detection
   useEffect(() => {
-    const handleMouseMove = () => {
-      socket.emit("markMessagesAsSeen", { recipientId });
-    };
+    if (!messagesContainerRef.current) return;
 
-    window.addEventListener("mousemove", handleMouseMove);
+    // Initial mark as seen
+    markAsSeen();
 
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [recipientId]);
+    // Observer for message visibility
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            markAsSeen();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
 
+    // Observe the last few messages
+    const messageElements = messagesContainerRef.current.querySelectorAll('.message');
+    if (messageElements.length > 0) {
+      // Observe last 3 messages
+      for (let i = Math.max(0, messageElements.length - 3); i < messageElements.length; i++) {
+        observer.observe(messageElements[i]);
+      }
+    }
+
+    return () => observer.disconnect();
+  }, [messages, markAsSeen]);
+
+  // Click outside handler
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showOptions !== null) {
@@ -76,109 +96,91 @@ const ChatBox = ({ chatUser }) => {
       if (showPicker) {
         const emojiPicker = document.getElementById("emoji-picker");
         const emojiButton = document.getElementById("emoji-button");
-
-        // ✅ If clicked inside the emoji picker, do NOT close it
-        if (emojiPicker && emojiPicker.contains(event.target)) {
-          return;
-        }
-
-        // ✅ If clicked outside both picker and button, close picker
-        if (
-          emojiPicker &&
-          !emojiPicker.contains(event.target) &&
-          emojiButton &&
-          !emojiButton.contains(event.target)
-        ) {
+        
+        if (emojiPicker?.contains(event.target)) return;
+        if (!emojiButton?.contains(event.target)) {
           setShowPicker(false);
         }
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showOptions, showPicker]);
 
+  const scrollToBottom = useCallback(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }, []);
+  // Socket event handlers
   useEffect(() => {
     if (recipientId) {
       socket.emit("joinRoom", { recipientId });
     }
 
-    socket.on("recipientLastSeen", (data) => {
-      setLastSeen(data.lastSeen); // Set last seen directly
-    });
-
-    socket.on("conversationHistory", (messages) => {
-      setMessages(messages);
-    });
-
-    socket.on("messageReceived", (message) => {
-      // messageReceivedSound.play();
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
-    socket.on("messageError", (error) => {
-      if (error.message === "Unauthorized") {
-        window.location.href = "/login";
-      } else {
-        setErrorMessage(error.message);
-        setTimeout(() => setErrorMessage(null), 2000);
+    const handlers = {
+      recipientLastSeen: (data) => setLastSeen(data.lastSeen),
+      conversationHistory: (messages) => setMessages(messages),
+      messageReceived: (message) => {
+        setMessages((prev) => [...prev, message]);
+        scrollToBottom();
+        markAsSeen(); 
+      },
+      messageError: (error) => {
+        if (error.message === "Unauthorized") {
+          window.location.href = "/login";
+        } else {
+          setErrorMessage(error.message);
+          setTimeout(() => setErrorMessage(null), 2000);
+        }
+      },
+      messageUpdate: (updatedMessage) => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg._id === updatedMessage._id
+              ? { ...msg, status: updatedMessage.status, content: updatedMessage.content }
+              : msg
+          )
+        );
+      },
+      isSeen: (updatedMessages) => setMessages(updatedMessages),
+      messageStatusUpdate: (updatedMessage) => {
+        setMessages((prev) => {
+          if (prev.length === 0) return prev;
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            ...updatedMessage
+          };
+          return updated;
+        });
       }
-    });
+    };
 
-    socket.on("messageUpdate", (updatedMessage) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg._id === updatedMessage._id
-            ? {
-                ...msg,
-                status: updatedMessage.status,
-                content: updatedMessage.content,
-              }
-            : msg
-        )
-      );
-    });
-    // State to store the last seen timestamp
-
-    socket.on("isSeen", (updatedMessage) => {
-      setMessages(updatedMessage);
-    });
-
-    socket.on("messageStatusUpdate", (updatedMessage) => {
-      setMessages((prevMessages) => {
-        if (prevMessages.length === 0) return prevMessages;
-
-        const updatedMessages = [...prevMessages];
-        const lastMessageIndex = updatedMessages.length - 1;
-
-        updatedMessages[lastMessageIndex] = {
-          ...updatedMessages[lastMessageIndex],
-          sender: updatedMessage.sender,
-          recipient: updatedMessage.recipient,
-          status: updatedMessage.status,
-          timestamp: updatedMessage.timestamp,
-          _id: updatedMessage._id,
-        };
-        return updatedMessages;
-      });
+    Object.entries(handlers).forEach(([event, handler]) => {
+      socket.on(event, handler);
     });
 
     return () => {
-      socket.off("isSeen");
-      socket.off("messageReceived");
-      socket.off("conversationHistory");
-      socket.off("messageUpdate");
-      socket.off("messageStatusUpdate");
-      socket.off("messageError");
-      socket.off("recipientLastSeen");
+      Object.keys(handlers).forEach((event) => {
+        socket.off(event);
+      });
     };
-  }, [recipientId]);
+  }, [recipientId, markAsSeen]);
+
+ 
+
+  useEffect(() => {
+    setTimeout(scrollToBottom, 100);
+  }, [recipientId, scrollToBottom]);
 
   const handleSendMessage = () => {
     if (input.trim() === "" && !selectedFile) return;
-    //messageSentSound.play();
+    scrollToBottom();
     if (editingMessageId) {
       socket.emit("updateMessage", {
         recipientId,
@@ -187,58 +189,30 @@ const ChatBox = ({ chatUser }) => {
       });
       setEditingMessageId(null);
     } else {
-      const messageData = {
-        content: input,
-        status: "pending",
-      };
-
-      displayMessage(messageData);
-      socket.emit("sendMessage", {
-        recipientId,
-        content: input,
-      });
+      const messageData = { content: input, status: "pending" };
+      setMessages((prev) => [...prev, messageData]);
+      socket.emit("sendMessage", { recipientId, content: input });
     }
 
     setInput("");
     setSelectedFile(null);
   };
 
-  const displayMessage = (msg) => {
-    setMessages((prevMessages) => [...prevMessages, msg]);
-    scrollToBottom(messagesContainerRef);
+  const addEmoji = (emojiObject) => {
+    setInput((prev) => prev + emojiObject.emoji);
+    setShowPicker(false);
   };
-
-  // Function to scroll to the bottom of messages
-  const scrollToBottom = () => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop =
-        messagesContainerRef.current.scrollHeight;
-    }
-  };
-
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Scroll to bottom when a new chat is opened
-  useEffect(() => {
-    setTimeout(() => {
-      scrollToBottom();
-    }, 100); // Delay to ensure DOM updates
-  }, [recipientId]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      e.preventDefault(); // Prevent default behavior (like new line in textarea)
-      handleSendMessage(); // Call the send message function
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
   const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
 
-  const toggleOptions = (index) =>
-    setShowOptions((prev) => (prev === index ? null : index));
+  const toggleOptions = (index) => setShowOptions(prev => prev === index ? null : index);
 
   const deleteMessage = (index, forEveryone = true) => {
     const message = messages[index];
@@ -248,15 +222,10 @@ const ChatBox = ({ chatUser }) => {
         messageId: message._id,
       });
 
-      setMessages((prevMessages) =>
-        prevMessages.map((msg, idx) =>
+      setMessages((prev) =>
+        prev.map((msg, idx) =>
           idx === index
-            ? {
-                ...msg,
-                content: forEveryone
-                  ? "Message deleted"
-                  : "Message deleted for you",
-              }
+            ? { ...msg, content: forEveryone ? "Message deleted" : "Message deleted for you" }
             : msg
         )
       );
@@ -273,14 +242,12 @@ const ChatBox = ({ chatUser }) => {
 
   return (
     <div className="flex flex-col w-full bg-transparent p-4 shadow-lg h-full md:h-screen border border-gray-500 overflow-hidden">
-      {/* Error Message Notification */}
       {errorMessage && (
         <div className="bg-gray-300 text-black text-center py-2 rounded mb-2 transition-opacity duration-500">
-          Some error Occurred
+          {errorMessage}
         </div>
       )}
 
-      {/* Chat User Profile */}
       <div className="flex items-center mb-2 space-x-4">
         <img
           src={chatUser.profilePicture || pic}
@@ -299,7 +266,6 @@ const ChatBox = ({ chatUser }) => {
         </div>
       </div>
 
-      {/* Messages List */}
       <div
         ref={messagesContainerRef}
         className="flex-1 bg-gray-200 overflow-y-auto overflow-x-hidden mb-1 p-5 overflow-hidden"
@@ -307,49 +273,40 @@ const ChatBox = ({ chatUser }) => {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`relative group my-1 py-2 rounded-lg transition-all break-all
-          ${
-            message.sender === recipientId
-              ? "chat-box-receiver-message text-gray-500 self-start px-2 "
-              : "chat-box-sender-message shadow-2xl text-white self-end pl-2 pr-10"
-          }`}
+            className={`message relative group my-1 py-2 rounded-lg transition-all break-all
+              ${message.sender === recipientId
+                ? "chat-box-receiver-message text-gray-500 self-start px-2"
+                : "chat-box-sender-message shadow-2xl text-white self-end pl-2 pr-10"
+              }`}
             style={{
-              // 1) Use float to align left/right, forcing each bubble to a new line
               float: message.sender === recipientId ? "left" : "right",
               clear: "both",
               width: "auto",
               maxWidth: "60%",
             }}
           >
-            {/* Text/File Container */}
             <div className="break-all">
-              {/* Message Content */}
               {message.content && (
                 <span className="inline-block">{message.content}</span>
               )}
 
-              {/* Read Tick (inline) if message is NOT deleted and you sent it */}
               {message.content !== "Message deleted" &&
                 message.sender !== recipientId && (
                   <span className="absolute bottom-1 right-2 text-xs m-1 ml-1 mt-1">
                     {message.status === "sent" ? (
-                      "✓"
+                      <FontAwesomeIcon icon={faCheck} className="text-xs" />
                     ) : message.status === "seen" ? (
-                      "✓✓"
+                      <BlueDoubleTickIcon className="w-5 h-5" />
                     ) : message.status === "edited" ? (
-                      "edited"
+                      <span className="text-xs italic">edited</span>
                     ) : (
-                      <FontAwesomeIcon
-                        icon={faClock}
-                        className="text-white-500"
-                      />
+                      <FontAwesomeIcon icon={faClock} className="text-xs text-gray-400" />
                     )}
                   </span>
                 )}
 
-              {/* File Preview or Download Link */}
               {message.file &&
-                (message.type.startsWith("image/") ? (
+                (message.type?.startsWith("image/") ? (
                   <img
                     src={message.file}
                     alt="Chat media"
@@ -367,7 +324,6 @@ const ChatBox = ({ chatUser }) => {
                 ))}
             </div>
 
-            {/* Menu Icon (shown on hover or if menu is open) */}
             {message.content !== "Message deleted" && (
               <div
                 className={`absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer ${
@@ -382,21 +338,18 @@ const ChatBox = ({ chatUser }) => {
               </div>
             )}
 
-            {/* Dropdown Menu (Delete/Edit) */}
             {showOptions === index && (
               <div
                 id={`message-options-${index}`}
                 className="absolute top-6 right-1 mt-1 w-24 pt-1 pb-1 bg-white rounded-sm shadow-md z-50 text-gray-600"
               >
                 {message.sender === recipientId ? (
-                  <>
-                    <button
-                      onClick={() => deleteMessage(index, true)}
-                      className="block w-full text-left px-2 py-1 hover:bg-gray-300 rounded"
-                    >
-                      Delete
-                    </button>
-                  </>
+                  <button
+                    onClick={() => deleteMessage(index, true)}
+                    className="block w-full text-left px-2 py-1 hover:bg-gray-300 rounded"
+                  >
+                    Delete
+                  </button>
                 ) : (
                   <>
                     <button
@@ -419,7 +372,6 @@ const ChatBox = ({ chatUser }) => {
         ))}
       </div>
 
-      {/* Input and Actions */}
       <div className="relative flex items-center chat-box-input">
         <button
           id="emoji-button"
@@ -428,7 +380,7 @@ const ChatBox = ({ chatUser }) => {
         >
           <FontAwesomeIcon icon={faSmile} className="text-gray-400 text-2xl" />
         </button>
-        {/* Emoji Picker (conditionally rendered) */}
+        
         {showPicker && (
           <div
             id="emoji-picker"
@@ -451,17 +403,17 @@ const ChatBox = ({ chatUser }) => {
           <FontAwesomeIcon icon={faPaperclip} />
         </label>
 
-        <input
-          type="text"
-          placeholder="Type something to send..."
-          className="flex-1 p-3 focus:outline-none text-gray-500"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
+        <textarea
+  placeholder="Type something to send..."
+  className="flex-1 p-3 focus:outline-none text-gray-500 resize-none rounded break-words"
+  value={input}
+  onChange={(e) => setInput(e.target.value)}
+  onKeyDown={handleKeyDown}
+/>
+
         <button
           onClick={handleSendMessage}
-          className="bg-green-400 mr-3 p-2 rounded-xl text-white cursor-pointer"
+          className="bg-green-400 mr-3 md:mr-6 p-2 rounded-xl text-white cursor-pointer"
         >
           <FontAwesomeIcon icon={faPaperPlane} />
         </button>
