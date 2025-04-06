@@ -10,7 +10,7 @@ function setupSocket(server) {
   const io = socketIo(server, {
     path: "/socket.io", // Path for socket.io connections
     cors: {
-      origin: "http://localhost:5173", // Match your frontend origin
+      origin: "https://shop-circuit.onrender.com", // Match your frontend origin
       methods: ["GET", "POST"],
       allowedHeaders: ["cookie", "my-custom-header"],
       credentials: true,
@@ -139,7 +139,6 @@ function setupSocket(server) {
           content
         );
         socket.emit("messageStatusUpdate", response);
-        io.to(`${recipientId}-${senderId}`).emit("messageReceived", response);
       } catch (error) {
         console.error("Error in socket sendMessage:", error);
         socket.emit("messageError", {
