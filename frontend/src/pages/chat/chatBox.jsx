@@ -4,18 +4,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPaperclip,
   faPaperPlane,
-
   faTrash,
   faClock,
   faCheck,
-@@ -12,78 +13,57 @@ import {
+  faSmile,
+} from "@fortawesome/free-solid-svg-icons";
 import EmojiPicker from "emoji-picker-react";
 import { ChevronDown } from "lucide-react";
 import pic from "./defaultImg_shopCircuit.webp";
 import { debounce } from "lodash";
 import BlueDoubleTickIcon from './blueTickIcon';
 
-const socket = io("https://shop-circuit.onrender.com", {
+const socket = io("http://localhost:3000", {
   withCredentials: true,
   path: "/socket.io",
 });
@@ -41,15 +41,7 @@ const ChatBox = ({ chatUser }) => {
   const [showOptions, setShowOptions] = useState(null);
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-
-
-
   const [showPicker, setShowPicker] = useState(false);
-
-
-
-
-
   const [lastSeen, setLastSeen] = useState(null);
   
   const messagesContainerRef = useRef(null);
@@ -91,31 +83,22 @@ const ChatBox = ({ chatUser }) => {
     return () => observer.disconnect();
   }, [messages, markAsSeen]);
 
-
-
-
-
   // Click outside handler
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showOptions !== null) {
-@@ -96,91 +76,109 @@ const ChatBox = ({ chatUser }) => {
+        const menu = document.getElementById(`message-options-${showOptions}`);
+        if (menu && !menu.contains(event.target)) {
+          setShowOptions(null);
+        }
+      }
+
       if (showPicker) {
         const emojiPicker = document.getElementById("emoji-picker");
         const emojiButton = document.getElementById("emoji-button");
         
         if (emojiPicker?.contains(event.target)) return;
         if (!emojiButton?.contains(event.target)) {
-
-
-
-
-
-
-
-
-
-
           setShowPicker(false);
         }
       }
@@ -123,9 +106,6 @@ const ChatBox = ({ chatUser }) => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-
-
-
   }, [showOptions, showPicker]);
 
   const scrollToBottom = useCallback(() => {
@@ -183,18 +163,7 @@ const ChatBox = ({ chatUser }) => {
 
     Object.entries(handlers).forEach(([event, handler]) => {
       socket.on(event, handler);
-
-
-
-
-
-
-
-
-
-
     });
-
 
     return () => {
       Object.keys(handlers).forEach((event) => {
@@ -205,33 +174,9 @@ const ChatBox = ({ chatUser }) => {
 
  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   useEffect(() => {
     setTimeout(scrollToBottom, 100);
   }, [recipientId, scrollToBottom]);
-
-
-
-
-
-
-
 
   const handleSendMessage = () => {
     if (input.trim() === "" && !selectedFile) return;
@@ -239,20 +184,14 @@ const ChatBox = ({ chatUser }) => {
     if (editingMessageId) {
       socket.emit("updateMessage", {
         recipientId,
-@@ -189,30 +187,58 @@ const ChatBox = ({ chatUser }) => {
+        messageId: editingMessageId,
+        content: input,
       });
       setEditingMessageId(null);
     } else {
       const messageData = { content: input, status: "pending" };
       setMessages((prev) => [...prev, messageData]);
       socket.emit("sendMessage", { recipientId, content: input });
-
-
-
-
-
-
-
     }
 
     setInput("");
@@ -263,26 +202,6 @@ const ChatBox = ({ chatUser }) => {
     setInput((prev) => prev + emojiObject.emoji);
     setShowPicker(false);
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -295,10 +214,11 @@ const ChatBox = ({ chatUser }) => {
 
   const toggleOptions = (index) => setShowOptions(prev => prev === index ? null : index);
 
-
   const deleteMessage = (index, forEveryone = true) => {
     const message = messages[index];
-@@ -222,10 +248,15 @@ const ChatBox = ({ chatUser }) => {
+    if (message) {
+      socket.emit("deleteMessage", {
+        recipientId: message.recipient,
         messageId: message._id,
       });
 
@@ -306,33 +226,45 @@ const ChatBox = ({ chatUser }) => {
         prev.map((msg, idx) =>
           idx === index
             ? { ...msg, content: forEveryone ? "Message deleted" : "Message deleted for you" }
-
-
-
-
-
             : msg
         )
       );
-@@ -242,12 +273,14 @@ const ChatBox = ({ chatUser }) => {
+      setShowOptions(null);
+    }
+  };
+
+  const startEditingMessage = (index) => {
+    const message = messages[index];
+    setInput(message.content);
+    setEditingMessageId(message._id);
+    setShowOptions(null);
+  };
 
   return (
     <div className="flex flex-col w-full bg-transparent p-4 shadow-lg h-full md:h-screen border border-gray-500 overflow-hidden">
-
       {errorMessage && (
         <div className="bg-gray-300 text-black text-center py-2 rounded mb-2 transition-opacity duration-500">
           {errorMessage}
         </div>
       )}
 
-
       <div className="flex items-center mb-2 space-x-4">
         <img
           src={chatUser.profilePicture || pic}
-@@ -266,47 +299,57 @@ const ChatBox = ({ chatUser }) => {
+          alt=""
+          className="rounded-full h-10 w-10 md:h-14 md:w-14"
+        />
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">
+            {chatUser.username}
+          </h2>
+          {recipientId && (
+            <p className="text-[12px] text-gray-400">
+              last seen at {formatLastSeen(lastSeen) || "recently"}
+            </p>
+          )}
         </div>
       </div>
-
 
       <div
         ref={messagesContainerRef}
@@ -346,22 +278,17 @@ const ChatBox = ({ chatUser }) => {
                 ? "chat-box-receiver-message text-gray-500 self-start px-2"
                 : "chat-box-sender-message shadow-2xl text-white self-end pl-2 pr-10"
               }`}
-
             style={{
-
               float: message.sender === recipientId ? "left" : "right",
               clear: "both",
               width: "auto",
               maxWidth: "60%",
             }}
           >
-
             <div className="break-all">
-
               {message.content && (
                 <span className="inline-block">{message.content}</span>
               )}
-
 
               {message.content !== "Message deleted" &&
                 message.sender !== recipientId && (
@@ -374,31 +301,42 @@ const ChatBox = ({ chatUser }) => {
                       <span className="text-xs italic">edited</span>
                     ) : (
                       <FontAwesomeIcon icon={faClock} className="text-xs text-gray-400" />
-
-
-
                     )}
                   </span>
                 )}
-
 
               {message.file &&
                 (message.type?.startsWith("image/") ? (
                   <img
                     src={message.file}
                     alt="Chat media"
-@@ -324,6 +367,7 @@ const ChatBox = ({ chatUser }) => {
+                    className="w-96 h-auto rounded-lg mt-2"
+                  />
+                ) : (
+                  <a
+                    href={message.file}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-green-400 underline mt-2"
+                  >
+                    Download File
+                  </a>
                 ))}
             </div>
-
 
             {message.content !== "Message deleted" && (
               <div
                 className={`absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer ${
-@@ -338,18 +382,21 @@ const ChatBox = ({ chatUser }) => {
+                  message.sender === recipientId
+                    ? "chat-box-message-menu-receiver"
+                    : "chat-box-message-menu-sender"
+                } backdrop-opacity-10 rounded-lg p-1 z-10`}
+                onClick={() => toggleOptions(index)}
+                style={{ pointerEvents: "auto" }}
+              >
+                <ChevronDown className="text-gray-700 w-5 h-5" />
               </div>
             )}
-
 
             {showOptions === index && (
               <div
@@ -412,20 +350,33 @@ const ChatBox = ({ chatUser }) => {
                   >
                     Delete
                   </button>
-
-
                 ) : (
                   <>
                     <button
-@@ -372,6 +419,7 @@ const ChatBox = ({ chatUser }) => {
+                      onClick={() => startEditingMessage(index)}
+                      className="block w-full text-left px-2 py-1 hover:bg-gray-300 rounded"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteMessage(index, true)}
+                      className="block w-full text-left px-2 py-1 hover:bg-gray-300 rounded"
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         ))}
       </div>
-
 
       <div className="relative flex items-center chat-box-input">
         <button
           id="emoji-button"
-@@ -380,7 +428,7 @@ const ChatBox = ({ chatUser }) => {
+          onClick={() => setShowPicker(!showPicker)}
+          className="pl-2 pt-1 pr-1 ml-2 mr-2 cursor-pointer"
         >
           <FontAwesomeIcon icon={faSmile} className="text-gray-400 text-2xl" />
         </button>
@@ -433,7 +384,22 @@ const ChatBox = ({ chatUser }) => {
         {showPicker && (
           <div
             id="emoji-picker"
-@@ -403,17 +451,17 @@ const ChatBox = ({ chatUser }) => {
+            className="absolute bottom-12 left-0 z-50 bg-white shadow-md"
+          >
+            <EmojiPicker onEmojiClick={addEmoji} />
+          </div>
+        )}
+
+        <input
+          type="file"
+          id="fileInput"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <label
+          htmlFor="fileInput"
+          className="text-gray-500 pl-1 pr-1 cursor-pointer mr-2"
+        >
           <FontAwesomeIcon icon={faPaperclip} />
         </label>
 
@@ -451,7 +417,8 @@ const ChatBox = ({ chatUser }) => {
         >
           <FontAwesomeIcon icon={faPaperPlane} />
         </button>
-@@ -422,4 +470,4 @@ const ChatBox = ({ chatUser }) => {
+      </div>
+    </div>
   );
 };
 
