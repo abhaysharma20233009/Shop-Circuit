@@ -15,7 +15,7 @@ import pic from "./defaultImg_shopCircuit.webp";
 import { debounce } from "lodash";
 import BlueDoubleTickIcon from './blueTickIcon';
 
-const socket = io("http://localhost:3000", {
+const socket = io("https://shop-circuit.onrender.com", {
   withCredentials: true,
   path: "/socket.io",
 });
