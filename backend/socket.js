@@ -6,11 +6,13 @@ const User = require("./models/userModel");
 const Notification = require("./models/notificationModel");
 
 const users = {}; // userId -> socketId mapping
+const onlineUsers = new Map(); // userId -> socketId
+
 function setupSocket(server) {
   const io = socketIo(server, {
-    path: "/socket.io", // Path for socket.io connections
+    path: "/socket.io",
     cors: {
-      origin: "https://shop-circuit.onrender.com", // Match your frontend origin
+      origin: "http://localhost:5173",
       methods: ["GET", "POST"],
       allowedHeaders: ["cookie", "my-custom-header"],
       credentials: true,
@@ -19,18 +21,17 @@ function setupSocket(server) {
 
   // Authentication Middleware
   io.use((socket, next) => {
-    const cookies = cookie.parse(socket.handshake.headers.cookie || ""); // Parse cookies
-
-    const token = cookies.jwt; // Access token from cookies
+    const cookies = cookie.parse(socket.handshake.headers.cookie || "");
+    const token = cookies.jwt;
 
     if (!token) return next(new Error("Authentication error"));
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use your secret key
-      socket.user = decoded; // Attach decoded user info to socket
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      socket.user = decoded;
       next();
     } catch (err) {
-      console.error("JWT Verification Error:", err); // Log error if JWT verification fails
+      console.error("JWT Verification Error:", err);
       next(new Error("Authentication error"));
     }
   });
@@ -39,7 +40,9 @@ function setupSocket(server) {
     console.log("A user connected");
     const userId = socket.user.id;
     const senderId = userId;
+
     users[userId] = socket.id;
+    onlineUsers.set(userId, socket.id);
 
     // Fetch Unread Notifications
     socket.on("fetchNotifications", async () => {
@@ -48,7 +51,6 @@ function setupSocket(server) {
           receiver: userId,
           isRead: false,
         }).populate("sender", "username profilePicture");
-        //console.log("Notifications found:", notifications);
         socket.emit("allNotifications", notifications);
       } catch (error) {
         console.error("Error fetching notifications:", error);
@@ -67,17 +69,10 @@ function setupSocket(server) {
         console.error("Error marking notifications as read:", error);
       }
     });
-    // Join room for sender and receiver, and retrieve conversation history
+
+    // Join room and send online/lastSeen info
     socket.on("joinRoom", async (data) => {
       const { recipientId } = data;
-      // Retrieve the recipient's last seen time from the database
-      const recipient = await User.findById(recipientId);
-
-      if (recipient && recipient.lastSeen) {
-        socket.emit("recipientLastSeen", { lastSeen: recipient.lastSeen });
-      }
-
-      // Log senderId
 
       if (!senderId) {
         socket.emit("messageError", { message: "Unauthorized" });
@@ -88,6 +83,15 @@ function setupSocket(server) {
       socket.join(roomId);
 
       try {
+        if (onlineUsers.has(recipientId)) {
+          socket.emit("recipientOnline", { userId: recipientId });
+        } else {
+          const recipient = await User.findById(recipientId);
+          if (recipient && recipient.lastSeen) {
+            socket.emit("recipientLastSeen", { lastSeen: recipient.lastSeen });
+          }
+        }
+
         const conversation = await messagesController.getAllMessages(
           senderId,
           recipientId
@@ -146,23 +150,22 @@ function setupSocket(server) {
         });
       }
     });
+
     socket.on("userList", async () => {
       if (!senderId) {
         socket.emit("messageError", { message: "Unauthorized" });
         return;
       }
-      console.log("Emitting userList event...");
-      socket.emit("userList");
 
       try {
+        socket.emit("userList");
         const response = await messagesController.getMessagesForRecipient(
           io,
           senderId
         );
-        console.log("here is the response" + response);
         socket.emit("updateChatList", response);
       } catch (error) {
-        console.error("Error in socket sendMessage:", error);
+        console.error("Error in userList:", error);
         socket.emit("messageError", {
           message: error.message || "Internal server error",
         });
@@ -184,13 +187,11 @@ function setupSocket(server) {
           messageId,
           content
         );
-        if (!response) {
-          throw new Error("No chat data returned");
-        }
+        if (!response) throw new Error("No chat data returned");
 
         socket.emit("messageUpdate", response);
       } catch (error) {
-        console.error("Error in socket updateMessage:", error);
+        console.error("Error in updateMessage:", error);
         socket.emit("messageError", { message: error.message });
       }
     });
@@ -209,20 +210,29 @@ function setupSocket(server) {
           senderId,
           messageId
         );
-        if (!response || !response.chat) {
-          throw new Error("No chat data returned");
-        }
+        if (!response || !response.chat) throw new Error("No chat data returned");
 
         socket.emit("messageDeleted", response.chat.messages);
       } catch (error) {
-        console.error("Error in socket deleteMessage:", error);
+        console.error("Error in deleteMessage:", error);
         socket.emit("messageError", { message: error.message });
       }
     });
-
+    socket.on("getUserStatus", ({ userId }, callback) => {
+      try {
+        const isOnline = onlineUsers.has(userId);
+       
+        
+        callback({isOnline});
+      } catch (error) {
+        callback({ error: "Failed to get user status" });
+      }
+    });
     socket.on("disconnect", async () => {
+      onlineUsers.delete(senderId);
       await messagesController.updateLastSeen(senderId);
-      console.log("Disconnected");
+
+      console.log("A user disconnected");
     });
   });
 }
