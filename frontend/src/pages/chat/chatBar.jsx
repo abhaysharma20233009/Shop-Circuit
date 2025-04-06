@@ -7,7 +7,7 @@ import pic from "./defaultImg_shopCircuit.webp";
 import { useLocation } from "react-router-dom";
 
 
-const socket = io("http://localhost:5000",{
+const socket = io("https://shop-circuit.onrender.com",{
   withCredentials: true,
   path: "/socket.io",
 });
