@@ -21,6 +21,21 @@ const socket = io("https://shop-circuit.onrender.com", {
 });
 
 const ChatBox = ({ chatUser }) => {
+  const [isOnline, setIsOnline] = useState(false);
+const [lastSeen, setLastSeen] = useState(null);
+ 
+
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showOptions, setShowOptions] = useState(null);
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [showPicker, setShowPicker] = useState(false);
+  
+  
+  const messagesContainerRef = useRef(null);
+  const recipientId = chatUser._id;
   const formatLastSeen = (date) => {
     const options = {
       year: "numeric",
@@ -34,19 +49,6 @@ const ChatBox = ({ chatUser }) => {
     };
     return new Intl.DateTimeFormat("en-IN", options).format(new Date(date));
   };
-
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [showOptions, setShowOptions] = useState(null);
-  const [editingMessageId, setEditingMessageId] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [showPicker, setShowPicker] = useState(false);
-  const [lastSeen, setLastSeen] = useState(null);
-  
-  const messagesContainerRef = useRef(null);
-  const recipientId = chatUser._id;
-
   // Debounced function to mark messages as seen
   const markAsSeen = useCallback(debounce(() => {
     socket.emit("markMessagesAsSeen", { recipientId });
@@ -120,7 +122,15 @@ const ChatBox = ({ chatUser }) => {
   useEffect(() => {
     if (recipientId) {
       socket.emit("joinRoom", { recipientId });
+      socket.emit("getUserStatus", { userId: recipientId }, (response) => {
+        if (response.isOnline) {
+          setIsOnline(true);
+        }
+      });
+      
+     
     }
+   
 
     const handlers = {
       recipientLastSeen: (data) => setLastSeen(data.lastSeen),
@@ -166,6 +176,8 @@ const ChatBox = ({ chatUser }) => {
     });
 
     return () => {
+      socket.off("user-online");
+      socket.off("user-offline");
       Object.keys(handlers).forEach((event) => {
         socket.off(event);
       });
@@ -260,7 +272,7 @@ const ChatBox = ({ chatUser }) => {
           </h2>
           {recipientId && (
             <p className="text-[12px] text-gray-400">
-              last seen at {formatLastSeen(lastSeen) || "recently"}
+               {isOnline ? "Online" : `Last seen: ${formatLastSeen(lastSeen)}`}
             </p>
           )}
         </div>
