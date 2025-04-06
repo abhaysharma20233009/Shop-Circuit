@@ -18,7 +18,6 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.getMe = (req, res, next) => {
-  console.log("hiii");
   req.params.id = req.user._id;
   console.log(req.user._id);
   next();
@@ -35,7 +34,7 @@ exports.isLoggedIn = async (req, res, next) => {
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
-  console.log("hi"+req.body.email);
+
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
@@ -52,15 +51,14 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     ...(req.user.role === 'student' ? filterObj(req.body, 'hostelName', 'roomNumber') : {})
   };
   
-  console.log(filteredBody);
+
   // 3) Update the user document
-  console.log("userId"+req.user._id);
   const updatedUser = await User.findByIdAndUpdate(req.user._id, filteredBody, {
     new: true,
     runValidators: true,
   });
 
-console.log("hiii"+updatedUser);
+
 
   res.status(200).json({
     status: 'success',
