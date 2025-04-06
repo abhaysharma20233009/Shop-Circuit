@@ -25,12 +25,11 @@ const Chatlist = ({ onSelectChat }) => {
     socket.emit("userList");
 
     socket.on("updateChatList", (data) => {
-      console.log("Received chat users:", data);
-
+     
       if (data) {
         setChats(data); // Update chat list in real time
         if (variable) {
-          console.log(variable.profilePicture + "picture");
+        
           setChats([variable]); // Only update state once when component mounts
         }
       }
