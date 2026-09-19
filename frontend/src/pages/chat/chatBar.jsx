@@ -6,7 +6,8 @@ import { io } from "socket.io-client";
 import pic from "./defaultImg_shopCircuit.webp";
 import { useLocation } from "react-router-dom";
 
-const socket = io("http://localhost:3000", {
+
+const socket = io("https://shop-circuit.onrender.com",{
   withCredentials: true,
   path: "/socket.io",
 });
@@ -17,18 +18,18 @@ const Chatlist = ({ onSelectChat }) => {
   const location = useLocation();
   const variable = location.state?.studentId;
   //  console.log("helohello" + variable.username);
+  
 
   useEffect(() => {
     console.log("Emitting userList event...");
     socket.emit("userList");
 
     socket.on("updateChatList", (data) => {
-      console.log("Received chat users:", data);
-
+     
       if (data) {
         setChats(data); // Update chat list in real time
         if (variable) {
-          console.log(variable.profilePicture + "picture");
+        
           setChats([variable]); // Only update state once when component mounts
         }
       }

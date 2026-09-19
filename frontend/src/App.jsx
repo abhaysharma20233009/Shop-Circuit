@@ -52,6 +52,13 @@ const MainLayout = ({ children }) => (
   </>
 );
 
+const ChatLayout = ({ children }) => (
+  <>
+  <Navbar/>
+    {children}
+  </>
+);
+
 function App() {
   return (
     
@@ -124,9 +131,9 @@ function App() {
             <Route
               path="/chat"
               element={
-                <ProfileLayout>
+                <ChatLayout>
                   <ChatPage />
-                </ProfileLayout>
+                </ChatLayout>
               }
             />
             <Route

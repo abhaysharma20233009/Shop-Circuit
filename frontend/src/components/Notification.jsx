@@ -4,7 +4,7 @@ import { Player } from "@lottiefiles/react-lottie-player";
 import { useNavigate } from "react-router-dom";
 import loadingAnimation from "../assets/loading.json";
 
-const socket = io("http://localhost:3000", {
+const socket = io("https://shop-circuit.onrender.com", {
   withCredentials: true,
   path: "/socket.io",
 });

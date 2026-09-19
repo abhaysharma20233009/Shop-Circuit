@@ -12,12 +12,9 @@ export const ProductsDataProvider = ({ children }) => {
         const response = await fetch("/api/v1/products", {
           credentials: "include", // Include cookies for authentication
         });
-        console.log(response);
         const data = await response.json();
-        console.log(data.data);
         if (data.status) {
           setProducts(data.data.products);
-          console.log("Products"+products);
         } else {
           console.error("Error fetching user data:", data.message);
         }
@@ -30,9 +27,6 @@ export const ProductsDataProvider = ({ children }) => {
 
     fetchUserData();
   }, []);
-  useEffect(() => {
-    console.log("Updated Products:", products);
-  }, [products]); 
   return (
     <DataContext.Provider value={{ products, loading }}>
       {children}
